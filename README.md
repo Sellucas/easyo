@@ -6,7 +6,7 @@
     <br />
     <a href="/">Website</a>
     ·
-    <a href="https://github.com/Sellucas/prodify/issues">Issues</a>
+    <a href="https://github.com/Sellucas/easyo/issues">Issues</a>
   </p>
 </p>
 
@@ -40,22 +40,26 @@ Progress Indicators: Visual feedback on whether key SEO elements meet recommende
 To install and run this extension locally:
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Sellucas/easyo.git
 ```
 
 2. Install dependencies:
+
 ```bash
 cd easyo
 npm i
 ```
 
 3. Build the project:
+
 ```bash
 npm run build
 ```
 
 4. Load the extension into Chrome:
+
 - Open Chrome and navigate to chrome://extensions/.
 - Enable "Developer mode".
 - Click "Load unpacked" and select the dist folder from the project directory.
