@@ -1,66 +1,65 @@
-# React Chrome Extension Template
+<p align="center">
+	<h1 align="center"><b>easyo</b></h1>
+<p align="center">
+    SEO Analyzer - chrome extension
+    <br />
+    <br />
+    <a href="/">Website</a>
+    ·
+    <a href="https://github.com/Sellucas/prodify/issues">Issues</a>
+  </p>
+</p>
 
-This is a template for creating a Chrome extension using React and [Vite](https://vitejs.dev/) with TypeScript.
+## About
 
+Easyo is a Chrome extension built with Vite and TypeScript that provides a detailed analysis of a webpage's SEO structure, including metadata, internal/external links, Open Graph, Twitter cards, and more. This tool helps developers quickly assess how well a page is optimized for search engines and offers suggestions for improvement.
 
-## Getting Started
+## Features
 
-### Prerequisites
+**SEO Analysis**: Analyze the page's title, description, keywords, and robots meta tag for SEO best practices.
 
-Make sure you have [Node.js](https://nodejs.org/) (version 18+ or 20+) installed on your machine.
+**Internal & External Links**: Identify and list all internal and external links on the page.
 
-### Setup
+**Metadata**: View Open Graph, Twitter Card, and general metadata for the page.
 
-1. Clone or fork the repository :
+**Indexability Check**: Check if the page can be indexed by search engines.
+Progress Indicators: Visual feedback on whether key SEO elements meet recommended guidelines.
 
-    ```sh
-    # To clone
-    git clone https://github.com/5tigerjelly/chrome-extension-react-template
-    cd chrome-extension-react-template
-    ```
+**Tooltips with Recommendations**: Provides suggestions and guidelines for optimal SEO performance.
 
-2. Install the dependencies:
+## Technologies
 
-    ```sh
-    npm install
-    ```
+- React
+- Typescript
+- Vite
+- Tailwindcss
+- Shadcn/ui
 
-## 🏗️ Development
+## Installation
 
-To start the development server:
+To install and run this extension locally:
 
-```sh
-npm run dev
+1. Clone the repository:
+```bash
+git clone https://github.com/Sellucas/easyo.git
 ```
 
-This will start the Vite development server and open your default browser.
+2. Install dependencies:
+```bash
+cd easyo
+npm i
+```
 
-## 📦 Build 
-
-To create a production build:
-
-```sh
+3. Build the project:
+```bash
 npm run build
 ```
 
-This will generate the build files in the `build` directory.
-
-## 📂 Load Extension in Chrome
-
-1. Open Chrome and navigate to `chrome://extensions/`.
-2. Enable "Developer mode" using the toggle switch in the top right corner.
-3. Click "Load unpacked" and select the `build` directory.
-
-Your React app should now be loaded as a Chrome extension!
-
-## 🗂️ Project Structure
-
-- `public/`: Contains static files and the `manifest.json`.
-- `src/`: Contains the React app source code.
-- `vite.config.ts`: Vite configuration file.
-- `tsconfig.json`: TypeScript configuration file.
-- `package.json`: Contains the project dependencies and scripts.
+4. Load the extension into Chrome:
+- Open Chrome and navigate to chrome://extensions/.
+- Enable "Developer mode".
+- Click "Load unpacked" and select the dist folder from the project directory.
 
 ## License
 
-This project is licensed under the MIT License.
+Distributed under the MIT License. See `LICENSE` for more information.
