@@ -20,10 +20,11 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { Progress } from "./ui/progress";
 import { Separator } from "./ui/separator";
+import { RadialChart } from "./radial-chart";
 import { HeadingButton } from "./heading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { calculateOverallScore, calculateProgress, getDomain } from "@/lib/utils";
 
 type HeadingsType = {
   h1: number;
@@ -133,9 +134,6 @@ export const SeoTabs = () => {
     chrome.runtime.onMessage.addListener(handleMessage);
   }, []);
 
-  const getDomain = (url: string) => url.split("/").slice(0, 3).join("/");
-  const calculateProgress = (value: number | undefined, max: number) =>
-    Math.min(((value || 0) / max) * 100, 100);
   const baseUrl = getDomain(pageData.url);
   const hasDataOnOpenGraph = [
     pageData.openGraph.description,
@@ -165,155 +163,126 @@ export const SeoTabs = () => {
       </TabsList>
 
       <TabsContent value="analysis">
-        <div className="space-y-6">
-          <div className="flex flex-col gap-4 animate-slide-from-down-and-fade-1">
-            <div className="space-y-2">
-              <h2 className="font-semibold mb-4 text-lg">Analysis Resume</h2>
-              <div className="flex items-center gap-1 mb-1">
-                <Label>Title</Label>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        The ideal length is between 50-60 characters. Titles
-                        should be unique, descriptive, and contain the primary
-                        keyword near the beginning.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Progress
-                value={calculateProgress(pageData.title?.length, 60)}
-                className="w-full"
+        <div className="space-y-8">
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-1">
+            <h2 className="font-semibold text-lg">Analysis Resume</h2>
+            <div className="grid grid-cols-3 place-items-center">
+              <RadialChart
+                title="Title"
+                count={calculateProgress(pageData.title.length, 50)}
+                tooltip="The ideal length is between 50-60 characters. Titles should be unique, descriptive, and contain the primary keyword near the beginning."
               />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-1 mb-1">
-                <Label>Description</Label>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        Keep the description between 150-160 characters. It
-                        should clearly summarize the content and include a call
-                        to action when appropriate.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Progress
-                value={calculateProgress(pageData.description?.length, 160)}
-                className="w-full"
+              <RadialChart
+                title="Description"
+                count={calculateProgress(pageData.description.length, 150)}
+                tooltip="Keep the description between 150-160 characters. It should clearly summarize the content and include a call to action when appropriate."
+              />
+              <RadialChart
+                title="Overall"
+                count={calculateOverallScore(pageData)}
+                tooltip="A very good score is between 60 and 80. For best results, you should strive for 70 and above."
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 animate-slide-from-down-and-fade-2">
+          <div className="grid grid-cols-2 place-items-center gap-4 animate-slide-from-down-and-fade-2">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-1">
-                <Label>URL indexable</Label>
                 <div className="flex items-center gap-2">
-                  <TooltipProvider delayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="size-3 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-48">
-                        <p>
-                          {pageData.indexable
-                            ? "This page can be indexed and will appear in search engine results since it lacks index-blocking directives or canonical URLs."
-                            : "This page cannot be indexed because it has index-blocking directives or canonical URLs that prevent it from appearing in search results."}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                   {pageData.indexable ? (
                     <Check className="size-6 text-green-700" />
                   ) : (
                     <AlertTriangle className="size-5 text-yellow-600" />
                   )}
+                  <Label>URL indexable</Label>
                 </div>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-3 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-48">
+                      <p>
+                        {pageData.indexable
+                          ? "This page can be indexed and will appear in search engine results since it lacks index-blocking directives or canonical URLs."
+                          : "This page cannot be indexed because it has index-blocking directives or canonical URLs that prevent it from appearing in search results."}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex items-center gap-1">
-                <Label>Language</Label>
                 <div className="flex items-center gap-2">
-                  <TooltipProvider delayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="size-3 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-48">
-                        <p>
-                          The lang attribute is used to describe the intended
-                          language of the current page to user's browsers and
-                          Search Engines.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                   {pageData.language !== "Not set" ? (
                     <Check className="size-6 text-green-700" />
                   ) : (
                     <AlertTriangle className="size-5 text-yellow-600" />
                   )}
+                  <Label>Language</Label>
                 </div>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-3 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-48">
+                      <p>
+                        The lang attribute is used to describe the intended
+                        language of the current page to user's browsers and
+                        Search Engines.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-1">
-                <Label>Open Graph</Label>
                 <div className="flex items-center gap-2">
-                  <TooltipProvider delayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="size-3 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-48">
-                        <p>
-                          The lang attribute is used to describe the intended
-                          language of the current page to user's browsers and
-                          Search Engines.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                   {hasDataOnOpenGraph ? (
                     <Check className="size-6 text-green-700" />
                   ) : (
                     <AlertTriangle className="size-5 text-yellow-600" />
                   )}
+                  <Label>Open Graph</Label>
                 </div>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-3 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-48">
+                      <p>
+                        The lang attribute is used to describe the intended
+                        language of the current page to user's browsers and
+                        Search Engines.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex items-center gap-1">
-                <Label>Twitter Data</Label>
                 <div className="flex items-center gap-2">
-                  <TooltipProvider delayDuration={100}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Info className="size-3 text-gray-500" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-48">
-                        <p>
-                          The lang attribute is used to describe the intended
-                          language of the current page to user's browsers and
-                          Search Engines.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                   {hasDataOnTwitter ? (
                     <Check className="size-6 text-green-700" />
                   ) : (
                     <AlertTriangle className="size-5 text-yellow-600" />
                   )}
+                  <Label>Twitter Data</Label>
                 </div>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-3 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-48">
+                      <p>
+                        The lang attribute is used to describe the intended
+                        language of the current page to user's browsers and
+                        Search Engines.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </div>
@@ -344,9 +313,12 @@ export const SeoTabs = () => {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-6">
+            <div className="grid grid-cols-6 border">
               {headingKeys.map((heading) => (
-                <div key={heading} className="flex flex-col gap-2 items-center">
+                <div
+                  key={heading}
+                  className="flex flex-col gap-2 items-center border p-4"
+                >
                   <Label className="uppercase text-xs">{heading}</Label>
                   <span className="text-xl leading-6">
                     {pageData.headings[heading]}
@@ -354,24 +326,24 @@ export const SeoTabs = () => {
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-4 gap-2 mt-6">
-              <div className="flex flex-col gap-2 items-center">
+            <div className="grid grid-cols-4 border border-t-0">
+              <div className="flex flex-col gap-2 items-center border p-4">
                 <Label className="uppercase text-xs">Words</Label>
                 <span className="text-xl leading-6">{pageData.totalWords}</span>
               </div>
-              <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-col gap-2 items-center border p-4">
                 <Label className="uppercase text-xs">Characters</Label>
                 <span className="text-xl leading-6">
                   {pageData.totalCharacters}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-col gap-2 items-center border p-4">
                 <Label className="uppercase text-xs">Images</Label>
                 <span className="text-xl leading-6">
                   {pageData.totalImages}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 items-center">
+              <div className="flex flex-col gap-2 items-center border p-4">
                 <Label className="uppercase text-xs">Links</Label>
                 <span className="text-xl leading-6">
                   {pageData.links.internal.length +
@@ -481,7 +453,7 @@ export const SeoTabs = () => {
               />
             </div>
           </div>
-          <Separator className="animate-slide-from-down-and-fade-1"/>
+          <Separator className="animate-slide-from-down-and-fade-1" />
           <div className="space-y-2 animate-slide-from-down-and-fade-2">
             <div>
               <Label>Robots</Label>
