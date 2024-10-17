@@ -1,11 +1,12 @@
-async function getTabId(): Promise<number | undefined> {
+async function getTab() {
   const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
-  return tabs[0]?.id;
+  return tabs[0];
 }
 
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.action === "analyzePage") {
-    const tabId = await getTabId();
+    const activeTab = await getTab();
+    const tabId = activeTab?.id;
     if (tabId !== undefined) {
       chrome.scripting.executeScript({
         target: { tabId: tabId },
@@ -52,7 +53,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
             ?.getAttribute("content");
 
           const robotsMetaT = robotsMeta;
-          const url = document.URL;
+          const url = window.location.href;
           const keywords = keywordsMeta?.content
             ? keywordsMeta.content.split(",")
             : [];
