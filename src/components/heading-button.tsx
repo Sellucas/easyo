@@ -19,39 +19,61 @@ export const HeadingButton = () => {
               legend.style.position = "fixed";
               legend.style.bottom = "10px";
               legend.style.left = "10px";
-              legend.style.padding = "10px";
-              legend.style.backgroundColor = "rgba(15, 15, 15)";
-              legend.style.border = "1px solid #ccc";
+              legend.style.padding = "12px";
+              legend.style.backgroundColor = "rgba(30, 30, 30, 0.95)";
+              legend.style.borderRadius = "8px";
+              legend.style.border = "1px solid #999";
               legend.style.fontSize = "14px";
               legend.style.zIndex = "9999";
               legend.style.color = "white";
               legend.style.display = "flex";
-              legend.style.justifyContent = "space-between";
-              legend.style.width = "150px";
+              legend.style.flexDirection = "column";
+              legend.style.width = "180px";
+              legend.style.position = "fixed";
 
               const closeButton = document.createElement("button");
-              closeButton.innerText = "X";
-              closeButton.style.marginTop = "2px";
-              closeButton.style.marginRight = "2px";
-              closeButton.style.width = "20px";
-              closeButton.style.height = "20px";
+              closeButton.innerText = "✕";
+              closeButton.style.position = "absolute";
+              closeButton.style.top = "6px";
+              closeButton.style.right = "6px";
+              closeButton.style.width = "24px";
+              closeButton.style.height = "24px";
               closeButton.style.color = "white";
-              closeButton.style.backgroundColor = "rgba(15, 15, 15)";
+              closeButton.style.backgroundColor = "transparent";
               closeButton.style.border = "none";
+              closeButton.style.fontSize = "18px";
               closeButton.style.cursor = "pointer";
               closeButton.onclick = () => document.body.removeChild(legend);
 
               legend.innerHTML = `
-                              <div>
-                                <div><strong>Legend:</strong></div>
-                                <div><span style="background-color: rgba(255, 0, 0, 0.2); padding: 2px 4px; margin-right: 5px;"></span> H1: Red</div>
-                                <div><span style="background-color: rgba(0, 0, 255, 0.2); padding: 2px 4px; margin-right: 5px;"></span> H2: Blue</div>
-                                <div><span style="background-color: rgba(0, 255, 0, 0.2); padding: 2px 4px; margin-right: 5px;"></span> H3: Green</div>
-                                <div><span style="background-color: rgba(0, 255, 255, 0.2); padding: 2px 4px; margin-right: 5px;"></span> H4: Cyan</div>
-                                <div><span style="background-color: rgba(255, 255, 0, 0.2); padding: 2px 4px; margin-right: 5px;"></span> H5: Yellow</div>
-                                <div><span style="background-color: rgba(255, 0, 255, 0.2); padding: 2px 4px; margin-right: 5px;"></span> H6: Magenta</div>
-                              </div>
-                            `;
+                <div style="display: flex; flex-direction: column;">
+                  <div><strong style="font-size: 16px;">Legend:</strong></div>
+                  <div style="display: flex; align-items: center; margin-top: 6px;">
+                    <span style="background-color: rgba(255, 0, 0, 0.5); width: 20px; height: 12px; margin-right: 8px;"></span> 
+                    <span>H1: Red</span>
+                  </div>
+                  <div style="display: flex; align-items: center; margin-top: 6px;">
+                    <span style="background-color: rgba(0, 0, 255, 0.5); width: 20px; height: 12px; margin-right: 8px;"></span> 
+                    <span>H2: Blue</span>
+                  </div>
+                  <div style="display: flex; align-items: center; margin-top: 6px;">
+                    <span style="background-color: rgba(0, 255, 0, 0.5); width: 20px; height: 12px; margin-right: 8px;"></span> 
+                    <span>H3: Green</span>
+                  </div>
+                  <div style="display: flex; align-items: center; margin-top: 6px;">
+                    <span style="background-color: rgba(0, 255, 255, 0.5); width: 20px; height: 12px; margin-right: 8px;"></span> 
+                    <span>H4: Cyan</span>
+                  </div>
+                  <div style="display: flex; align-items: center; margin-top: 6px;">
+                    <span style="background-color: rgba(255, 255, 0, 0.5); width: 20px; height: 12px; margin-right: 8px;"></span> 
+                    <span>H5: Yellow</span>
+                  </div>
+                  <div style="display: flex; align-items: center; margin-top: 6px;">
+                    <span style="background-color: rgba(255, 0, 255, 0.5); width: 20px; height: 12px; margin-right: 8px;"></span> 
+                    <span>H6: Magenta</span>
+                  </div>
+                </div>
+              `;
 
               legend.appendChild(closeButton);
               document.body.appendChild(legend);

@@ -25,11 +25,40 @@ import { Separator } from "./ui/separator";
 import { HeadingButton } from "./heading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
+type HeadingsType = {
+  h1: number;
+  h2: number;
+  h3: number;
+  h4: number;
+  h5: number;
+  h6: number;
+};
+
+const headingKeys: Array<keyof HeadingsType> = [
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+];
+
 const initialPageData = {
   url: "Something went wrong...",
   indexable: false,
   title: "",
   description: "",
+  headings: {
+    h1: 0,
+    h2: 0,
+    h3: 0,
+    h4: 0,
+    h5: 0,
+    h6: 0,
+  },
+  totalCharacters: 0,
+  totalWords: 0,
+  totalImages: 0,
   keywords: [],
   robots: "",
   language: "",
@@ -55,6 +84,17 @@ const updatePageData = (prevData: typeof initialPageData, message: any) => ({
   title: message.title || "Missing",
   description: message.description || "Missing",
   url: message.url || "Something went wrong...",
+  headings: {
+    h1: message.h1Elements || 0,
+    h2: message.h2Elements || 0,
+    h3: message.h3Elements || 0,
+    h4: message.h4Elements || 0,
+    h5: message.h5Elements || 0,
+    h6: message.h6Elements || 0,
+  },
+  totalCharacters: message.totalCharacters || 0,
+  totalWords: message.totalWords || 0,
+  totalImages: message.totalImages || 0,
   keywords: message.keywords || [],
   links: {
     internal: message.internalLinks || [],
@@ -97,6 +137,17 @@ export const SeoTabs = () => {
   const calculateProgress = (value: number | undefined, max: number) =>
     Math.min(((value || 0) / max) * 100, 100);
   const baseUrl = getDomain(pageData.url);
+  const hasDataOnOpenGraph = [
+    pageData.openGraph.description,
+    pageData.openGraph.image,
+    pageData.openGraph.title,
+  ].every((item) => item !== "No data found");
+  const hasDataOnTwitter = [
+    pageData.twitter.card,
+    pageData.twitter.description,
+    pageData.twitter.image,
+    pageData.twitter.title,
+  ].every((item) => item !== "No data found");
 
   return (
     <Tabs defaultValue="analysis" className="w-full">
@@ -115,21 +166,9 @@ export const SeoTabs = () => {
 
       <TabsContent value="analysis">
         <div className="space-y-6">
-          <div className="animate-slide-from-down-and-fade-1">
-            <Label>Title</Label>
-            <Input id="title" value={pageData.title} />
-          </div>
-          <div className="animate-slide-from-down-and-fade-2">
-            <Label>Description</Label>
-            <Textarea
-              id="description"
-              className="min-h-32"
-              value={pageData.description}
-            />
-          </div>
-          <div className="flex flex-col gap-4 animate-slide-from-down-and-fade-3">
+          <div className="flex flex-col gap-4 animate-slide-from-down-and-fade-1">
             <div className="space-y-2">
-              <h2 className="font-semibold mb-4 text-base">Score Resume</h2>
+              <h2 className="font-semibold mb-4 text-lg">Analysis Resume</h2>
               <div className="flex items-center gap-1 mb-1">
                 <Label>Title</Label>
                 <TooltipProvider delayDuration={100}>
@@ -176,33 +215,15 @@ export const SeoTabs = () => {
               />
             </div>
           </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="structure">
-        <div className="space-y-6">
-          <div className="flex flex-col justify-between animate-slide-from-down-and-fade-1">
-            <Label>URL</Label>
-            <div className="flex items-center justify-between mt-2">
-              <div className="underline text-blue-500">{pageData.url}</div>
-              <div
-                className={`flex items-center gap-1 px-2 py-1 font-medium text-white rounded ${
-                  pageData.indexable ? "bg-green-700" : "bg-yellow-600"
-                }`}
-              >
-                {pageData.indexable ? (
-                  <Check className="h-4 w-4 inline" />
-                ) : (
-                  <AlertTriangle className="h-4 w-4 inline" />
-                )}
-                <span>
-                  {pageData.indexable ? "Indexable" : "Not Indexable"}
-                </span>
-                <span className="flex gap-1 items-center">
+          <div className="grid grid-cols-2 gap-4 animate-slide-from-down-and-fade-2">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-1">
+                <Label>URL indexable</Label>
+                <div className="flex items-center gap-2">
                   <TooltipProvider delayDuration={100}>
                     <Tooltip>
                       <TooltipTrigger>
-                        <Info className="size-3 text-gray-300" />
+                        <Info className="size-3 text-gray-500" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-48">
                         <p>
@@ -213,9 +234,160 @@ export const SeoTabs = () => {
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  {pageData.indexable ? (
+                    <Check className="size-6 text-green-700" />
+                  ) : (
+                    <AlertTriangle className="size-5 text-yellow-600" />
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Label>Language</Label>
+                <div className="flex items-center gap-2">
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="size-3 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-48">
+                        <p>
+                          The lang attribute is used to describe the intended
+                          language of the current page to user's browsers and
+                          Search Engines.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  {pageData.language !== "Not set" ? (
+                    <Check className="size-6 text-green-700" />
+                  ) : (
+                    <AlertTriangle className="size-5 text-yellow-600" />
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-1">
+                <Label>Open Graph</Label>
+                <div className="flex items-center gap-2">
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="size-3 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-48">
+                        <p>
+                          The lang attribute is used to describe the intended
+                          language of the current page to user's browsers and
+                          Search Engines.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  {hasDataOnOpenGraph ? (
+                    <Check className="size-6 text-green-700" />
+                  ) : (
+                    <AlertTriangle className="size-5 text-yellow-600" />
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Label>Twitter Data</Label>
+                <div className="flex items-center gap-2">
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="size-3 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-48">
+                        <p>
+                          The lang attribute is used to describe the intended
+                          language of the current page to user's browsers and
+                          Search Engines.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  {hasDataOnTwitter ? (
+                    <Check className="size-6 text-green-700" />
+                  ) : (
+                    <AlertTriangle className="size-5 text-yellow-600" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <Separator className="animate-slide-from-down-and-fade-2" />
+          <div className="flex flex-col animate-slide-from-down-and-fade-3">
+            <h2 className="font-semibold mb-4 text-lg">Total Count</h2>
+            <div className="flex items-center gap-1 mb-4">
+              <Label>Headings</Label>
+              <div className="flex items-center gap-2">
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-3 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-48">
+                      <p>
+                        {pageData.headings.h1 > 0
+                          ? "This page has at least one H1 tag, which is important for SEO."
+                          : "It's recommended to include an H1 tag for better SEO as it helps search engines understand the primary topic of the page."}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                {pageData.headings.h1 > 0 ? (
+                  <Check className="size-6 text-green-700" />
+                ) : (
+                  <AlertTriangle className="size-5 text-yellow-600" />
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-6">
+              {headingKeys.map((heading) => (
+                <div key={heading} className="flex flex-col gap-2 items-center">
+                  <Label className="uppercase text-xs">{heading}</Label>
+                  <span className="text-xl leading-6">
+                    {pageData.headings[heading]}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-4 gap-2 mt-6">
+              <div className="flex flex-col gap-2 items-center">
+                <Label className="uppercase text-xs">Words</Label>
+                <span className="text-xl leading-6">{pageData.totalWords}</span>
+              </div>
+              <div className="flex flex-col gap-2 items-center">
+                <Label className="uppercase text-xs">Characters</Label>
+                <span className="text-xl leading-6">
+                  {pageData.totalCharacters}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2 items-center">
+                <Label className="uppercase text-xs">Images</Label>
+                <span className="text-xl leading-6">
+                  {pageData.totalImages}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2 items-center">
+                <Label className="uppercase text-xs">Links</Label>
+                <span className="text-xl leading-6">
+                  {pageData.links.internal.length +
+                    pageData.links.external.length}
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="structure">
+        <div className="space-y-6">
+          <div className="flex flex-col justify-between animate-slide-from-down-and-fade-1">
+            <Label className="mb-2">URL</Label>
+            <div className="underline text-blue-500">{pageData.url}</div>
           </div>
           <div className="animate-slide-from-down-and-fade-2">
             <div className="flex gap-1 items-center">
@@ -246,7 +418,7 @@ export const SeoTabs = () => {
               ))}
             </div>
           </div>
-          <div className="flex flex-col gap-6 animate-slide-from-down-and-fade-3">
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-3">
             <Label>Headings</Label>
             <HeadingButton />
           </div>
@@ -295,12 +467,27 @@ export const SeoTabs = () => {
 
       <TabsContent value="metadata">
         <div className="space-y-6">
-          <div className="space-y-2">
-            <div className="animate-slide-from-down-and-fade-1">
+          <div className="space-y-2 animate-slide-from-down-and-fade-1">
+            <div>
+              <Label>Title</Label>
+              <Input id="title" value={pageData.title} />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea
+                id="description"
+                className="min-h-32"
+                value={pageData.description}
+              />
+            </div>
+          </div>
+          <Separator className="animate-slide-from-down-and-fade-1"/>
+          <div className="space-y-2 animate-slide-from-down-and-fade-2">
+            <div>
               <Label>Robots</Label>
               <Input value={pageData.robots} />
             </div>
-            <div className="animate-slide-from-down-and-fade-2">
+            <div>
               <Label>Language</Label>
               <Input value={pageData.language} />
             </div>
@@ -327,7 +514,7 @@ export const SeoTabs = () => {
           </div>
           <Separator className="animate-slide-from-down-and-fade-4" />
           <div className="animate-slide-from-down-and-fade-5">
-            <Label>Open Graph</Label>
+            <h2 className="font-semibold text-lg">Open Graph</h2>
             <div className="space-y-2 mt-2">
               <div>
                 <Label>Title</Label>
@@ -348,7 +535,7 @@ export const SeoTabs = () => {
           </div>
           <Separator className="animate-slide-from-down-and-fade-5" />
           <div className="animate-slide-from-down-and-fade-6">
-            <Label>Twitter</Label>
+            <h2 className="font-semibold text-lg">Twitter</h2>
             <div className="space-y-2 mt-2">
               <div>
                 <Label>Card</Label>

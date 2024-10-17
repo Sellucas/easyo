@@ -60,6 +60,18 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const isIndexable =
             !robotsMetaT?.includes("noindex") && canonicalURL === url;
           const language = document.documentElement.lang;
+          const h1Elements = document.querySelectorAll("h1").length;
+          const h2Elements = document.querySelectorAll("h2").length;
+          const h3Elements = document.querySelectorAll("h3").length;
+          const h4Elements = document.querySelectorAll("h4").length;
+          const h5Elements = document.querySelectorAll("h5").length;
+          const h6Elements = document.querySelectorAll("h6").length;
+          const bodyText = document.body.innerText.trim();
+          const totalCharacters = bodyText.length;
+          const wordsArray = bodyText.split(/\s+/).filter(Boolean);
+          const totalWords = wordsArray.length;
+          const imageElements = document.querySelectorAll("img");
+          const totalImages = imageElements.length;
 
           chrome.runtime.sendMessage({
             url,
@@ -71,14 +83,23 @@ chrome.runtime.onMessage.addListener(async (message) => {
             ttImage,
             keywords,
             language,
+            totalWords,
+            h1Elements,
+            h2Elements,
+            h3Elements,
+            h4Elements,
+            h5Elements,
+            h6Elements,
             robotsMetaT,
             description,
             isIndexable,
             canonicalURL,
+            totalImages,
             internalLinks,
             externalLinks,
             ogDescription,
             ttDescription,
+            totalCharacters,
           });
         },
       });
