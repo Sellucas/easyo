@@ -321,7 +321,7 @@ export const SeoTabs = () => {
               {headingKeys.map((heading) => (
                 <div
                   key={heading}
-                  className="flex flex-col gap-2 items-center border p-4"
+                  className="flex flex-col gap-2 items-center border-x p-4"
                 >
                   <Label className="uppercase text-xs">{heading}</Label>
                   <span className="text-xl leading-6">
@@ -331,23 +331,23 @@ export const SeoTabs = () => {
               ))}
             </div>
             <div className="grid grid-cols-4 border border-t-0">
-              <div className="flex flex-col gap-2 items-center border p-4">
+              <div className="flex flex-col gap-2 items-center border-x p-4">
                 <Label className="uppercase text-xs">Words</Label>
                 <span className="text-xl leading-6">{pageData.totalWords}</span>
               </div>
-              <div className="flex flex-col gap-2 items-center border p-4">
+              <div className="flex flex-col gap-2 items-center border-x p-4">
                 <Label className="uppercase text-xs">Characters</Label>
                 <span className="text-xl leading-6">
                   {pageData.totalCharacters}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 items-center border p-4">
+              <div className="flex flex-col gap-2 items-center border-x p-4">
                 <Label className="uppercase text-xs">Images</Label>
                 <span className="text-xl leading-6">
                   {pageData.totalImages}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 items-center border p-4">
+              <div className="flex flex-col gap-2 items-center border-x p-4">
                 <Label className="uppercase text-xs">Links</Label>
                 <span className="text-xl leading-6">
                   {pageData.links.internal.length +
