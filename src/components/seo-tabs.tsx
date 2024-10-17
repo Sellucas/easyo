@@ -24,7 +24,11 @@ import { Separator } from "./ui/separator";
 import { RadialChart } from "./radial-chart";
 import { HeadingButton } from "./heading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { calculateOverallScore, calculateProgress, getDomain } from "@/lib/utils";
+import {
+  calculateOverallScore,
+  calculateProgress,
+  getDomain,
+} from "@/lib/utils";
 
 type HeadingsType = {
   h1: number;
@@ -290,28 +294,28 @@ export const SeoTabs = () => {
           <div className="flex flex-col animate-slide-from-down-and-fade-3">
             <h2 className="font-semibold mb-4 text-lg">Total Count</h2>
             <div className="flex items-center gap-1 mb-4">
-              <Label>Headings</Label>
               <div className="flex items-center gap-2">
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        {pageData.headings.h1 > 0
-                          ? "This page has at least one H1 tag, which is important for SEO."
-                          : "It's recommended to include an H1 tag for better SEO as it helps search engines understand the primary topic of the page."}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
                 {pageData.headings.h1 > 0 ? (
                   <Check className="size-6 text-green-700" />
                 ) : (
                   <AlertTriangle className="size-5 text-yellow-600" />
                 )}
+                <Label>Headings</Label>
               </div>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="size-3 text-gray-500" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-48">
+                    <p>
+                      {pageData.headings.h1 > 0
+                        ? "This page has at least one H1 tag, which is important for SEO."
+                        : "It's recommended to include an H1 tag for better SEO as it helps search engines understand the primary topic of the page."}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <div className="grid grid-cols-6 border">
               {headingKeys.map((heading) => (
