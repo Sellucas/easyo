@@ -24,11 +24,7 @@ import { Separator } from "./ui/separator";
 import { RadialChart } from "./radial-chart";
 import { HeadingButton } from "./heading-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import {
-  calculateOverallScore,
-  calculateProgress,
-  getDomain,
-} from "@/lib/utils";
+import { getDomain, calculateScore, calculateOverallScore } from "@/lib/utils";
 
 type HeadingsType = {
   h1: number;
@@ -86,8 +82,8 @@ const initialPageData = {
 
 const updatePageData = (prevData: typeof initialPageData, message: any) => ({
   ...prevData,
-  title: message.title || "Missing",
-  description: message.description || "Missing",
+  title: message.title || "",
+  description: message.description || "",
   url: message.url || "Something went wrong...",
   headings: {
     h1: message.h1Elements || 0,
@@ -105,19 +101,19 @@ const updatePageData = (prevData: typeof initialPageData, message: any) => ({
     internal: message.internalLinks || [],
     external: message.externalLinks || [],
   },
-  robots: message.robotsMetaT || "Missing",
+  robots: message.robotsMetaT || "",
   indexable: message.isIndexable || false,
-  language: message.language || "Not set",
+  language: message.language || "",
   openGraph: {
-    title: message.ogTitle || "No data found",
-    description: message.ogDescription || "No data found",
-    image: message.ogImage || "No data found",
+    title: message.ogTitle || "",
+    description: message.ogDescription || "",
+    image: message.ogImage || "",
   },
   twitter: {
-    card: message.ttCard || "No data found",
-    title: message.ttTitle || "No data found",
-    description: message.ttDescription || "No data found",
-    image: message.ttImage || "No data found",
+    card: message.ttCard || "",
+    title: message.ttTitle || "",
+    description: message.ttDescription || "",
+    image: message.ttImage || "",
   },
 });
 
@@ -143,13 +139,13 @@ export const SeoTabs = () => {
     pageData.openGraph.description,
     pageData.openGraph.image,
     pageData.openGraph.title,
-  ].every((item) => item !== "No data found");
+  ].every((item) => item !== "");
   const hasDataOnTwitter = [
     pageData.twitter.card,
     pageData.twitter.description,
     pageData.twitter.image,
     pageData.twitter.title,
-  ].every((item) => item !== "No data found");
+  ].every((item) => item !== "");
 
   return (
     <Tabs defaultValue="analysis" className="w-full">
@@ -173,12 +169,24 @@ export const SeoTabs = () => {
             <div className="grid grid-cols-3 place-items-center">
               <RadialChart
                 title="Title"
-                count={calculateProgress(pageData.title.length, 50)}
+                count={calculateScore(
+                  pageData.title?.length ?? 0,
+                  0,
+                  50,
+                  0,
+                  100
+                )}
                 tooltip="The ideal length is between 50-60 characters. Titles should be unique, descriptive, and contain the primary keyword near the beginning."
               />
               <RadialChart
                 title="Description"
-                count={calculateProgress(pageData.description.length, 150)}
+                count={calculateScore(
+                  pageData.description?.length ?? 0,
+                  0,
+                  150,
+                  0,
+                  100
+                )}
                 tooltip="Keep the description between 150-160 characters. It should clearly summarize the content and include a call to action when appropriate."
               />
               <RadialChart
@@ -216,7 +224,7 @@ export const SeoTabs = () => {
               </div>
               <div className="flex items-center gap-1">
                 <div className="flex items-center gap-2">
-                  {pageData.language !== "Not set" ? (
+                  {pageData.language !== "" ? (
                     <Check className="size-6 text-green-700" />
                   ) : (
                     <AlertTriangle className="size-5 text-yellow-600" />
@@ -256,9 +264,8 @@ export const SeoTabs = () => {
                     </TooltipTrigger>
                     <TooltipContent className="max-w-48">
                       <p>
-                        The lang attribute is used to describe the intended
-                        language of the current page to user's browsers and
-                        Search Engines.
+                        Open Graph metadata help control how your content is
+                        displayed when shared on social media.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -280,9 +287,8 @@ export const SeoTabs = () => {
                     </TooltipTrigger>
                     <TooltipContent className="max-w-48">
                       <p>
-                        The lang attribute is used to describe the intended
-                        language of the current page to user's browsers and
-                        Search Engines.
+                        Twitter metadata help control how your content is
+                        displayed when shared on Twitter.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -292,7 +298,7 @@ export const SeoTabs = () => {
           </div>
           <Separator className="animate-slide-from-down-and-fade-2" />
           <div className="flex flex-col animate-slide-from-down-and-fade-3">
-            <h2 className="font-semibold mb-4 text-lg">Total Count</h2>
+            <h2 className="font-semibold mb-2 text-lg">Total Count</h2>
             <div className="flex items-center gap-1 mb-4">
               <div className="flex items-center gap-2">
                 {pageData.headings.h1 > 0 ? (
@@ -361,8 +367,8 @@ export const SeoTabs = () => {
 
       <TabsContent value="structure">
         <div className="space-y-6">
-          <div className="flex flex-col justify-between animate-slide-from-down-and-fade-1">
-            <Label className="mb-2">URL</Label>
+          <div className="space-y-1 animate-slide-from-down-and-fade-1">
+            <Label>URL</Label>
             <div className="underline text-blue-500">{pageData.url}</div>
           </div>
           <div className="animate-slide-from-down-and-fade-2">
@@ -387,7 +393,7 @@ export const SeoTabs = () => {
               {pageData.keywords.map((keyword, index) => (
                 <span
                   key={index}
-                  className="bg-muted text-secondary-foreground px-2 py-1 rounded-full text-sm"
+                  className="bg-muted text-secondary-foreground px-2 py-1 rounded-full text-xs"
                 >
                   {keyword}
                 </span>
@@ -443,29 +449,48 @@ export const SeoTabs = () => {
 
       <TabsContent value="metadata">
         <div className="space-y-6">
-          <div className="space-y-2 animate-slide-from-down-and-fade-1">
-            <div>
-              <Label>Title</Label>
-              <Input id="title" value={pageData.title} />
+          <div className="space-y-4 animate-slide-from-down-and-fade-1">
+            <div className="group relative">
+              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                Title
+              </label>
+              <Input
+                className="h-10"
+                placeholder="Missing"
+                value={pageData.title}
+              />
             </div>
-            <div>
-              <Label>Description</Label>
+            <div className="group relative">
+              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                Description
+              </label>
               <Textarea
-                id="description"
-                className="min-h-32"
+                className="h-32"
+                placeholder="Missing"
                 value={pageData.description}
               />
             </div>
           </div>
-          <Separator className="animate-slide-from-down-and-fade-1" />
-          <div className="space-y-2 animate-slide-from-down-and-fade-2">
-            <div>
-              <Label>Robots</Label>
-              <Input value={pageData.robots} />
+          <div className="space-y-4 animate-slide-from-down-and-fade-2">
+            <div className="group relative">
+              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                Robots
+              </label>
+              <Input
+                className="h-10"
+                value={pageData.robots}
+                placeholder="Missing"
+              />
             </div>
-            <div>
-              <Label>Language</Label>
-              <Input value={pageData.language} />
+            <div className="group relative">
+              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                Language
+              </label>
+              <Input
+                className="h-10"
+                value={pageData.language}
+                placeholder="Not set"
+              />
             </div>
           </div>
           <div className="flex space-x-4 animate-slide-from-down-and-fade-3">
@@ -491,46 +516,82 @@ export const SeoTabs = () => {
           <Separator className="animate-slide-from-down-and-fade-4" />
           <div className="animate-slide-from-down-and-fade-5">
             <h2 className="font-semibold text-lg">Open Graph</h2>
-            <div className="space-y-2 mt-2">
-              <div>
-                <Label>Title</Label>
-                <Input value={pageData.openGraph.title} />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea
-                  value={pageData.openGraph.description}
-                  className="min-h-32"
+            <div className="space-y-4 mt-2">
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Title
+                </label>
+                <Input
+                  className="h-10"
+                  value={pageData.openGraph.title}
+                  placeholder="No data found"
                 />
               </div>
-              <div>
-                <Label>Image</Label>
-                <Input value={pageData.openGraph.image} />
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Description
+                </label>
+                <Textarea
+                  className="h-32"
+                  value={pageData.openGraph.description}
+                  placeholder="No data found"
+                />
+              </div>
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Image
+                </label>
+                <Input
+                  className="h-10"
+                  value={pageData.openGraph.image}
+                  placeholder="No data found"
+                />
               </div>
             </div>
           </div>
           <Separator className="animate-slide-from-down-and-fade-5" />
           <div className="animate-slide-from-down-and-fade-6">
             <h2 className="font-semibold text-lg">Twitter</h2>
-            <div className="space-y-2 mt-2">
-              <div>
-                <Label>Card</Label>
-                <Input value={pageData.twitter.card} />
-              </div>
-              <div>
-                <Label>Title</Label>
-                <Input value={pageData.twitter.title} />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea
-                  value={pageData.twitter.description}
-                  className="min-h-32"
+            <div className="space-y-4 mt-2">
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Card
+                </label>
+                <Input
+                  className="h-10"
+                  value={pageData.twitter.card}
+                  placeholder="No data found"
                 />
               </div>
-              <div>
-                <Label>Image</Label>
-                <Input value={pageData.twitter.image} />
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Title
+                </label>
+                <Input
+                  className="h-10"
+                  value={pageData.twitter.title}
+                  placeholder="No data found"
+                />
+              </div>
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Description
+                </label>
+                <Textarea
+                  className="h-32"
+                  value={pageData.twitter.description}
+                  placeholder="No data found"
+                />
+              </div>
+              <div className="group relative">
+                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
+                  Image
+                </label>
+                <Input
+                  className="h-10"
+                  value={pageData.twitter.image}
+                  placeholder="No data found"
+                />
               </div>
             </div>
           </div>
