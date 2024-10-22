@@ -11,26 +11,32 @@ import {
 } from "lucide-react";
 
 import {
+  getDomain,
+  getBaseUrl,
+  calculateScore,
+  calculateOverallScore,
+} from "@/lib/utils";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
 } from "./ui/tooltip";
 import { Label } from "./ui/label";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Textarea } from "./ui/textarea";
+import { StatItem } from "./stat-item";
 import { Separator } from "./ui/separator";
 import { RadialChart } from "./radial-chart";
+import { AnalysisItem } from "./analysis-item";
 import { HeadingButton } from "./heading-button";
+import { TwitterPreview } from "./twitter-preview";
+import { DiscordPreview } from "./discord-preview";
+import { FacebookPreview } from "./facebook-preview";
+import { LinkedInPreview } from "./linkedin-preview";
 import { usePageData } from "@/provider/page-data-provider";
+import { FloatingLabelInput } from "./floating-label-input";
+import { SocialPreviewSection } from "./social-preview-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import {
-  getDomain,
-  calculateScore,
-  calculateOverallScore,
-  getBaseUrl,
-} from "@/lib/utils";
 
 type HeadingsType = {
   h1: number;
@@ -50,6 +56,10 @@ const headingKeys: Array<keyof HeadingsType> = [
   "h6",
 ];
 
+const scrollTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
 export const SeoTabs = () => {
   const { pageData } = usePageData();
 
@@ -68,18 +78,18 @@ export const SeoTabs = () => {
 
   return (
     <Tabs defaultValue="analysis" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 content-center">
-        <TabsTrigger value="analysis">
+      <TabsList className="grid w-full grid-cols-4 h-16 content-center sticky top-0 bg-background z-20">
+        <TabsTrigger value="analysis" onClick={scrollTop}>
           <Gauge className="size-5" />
           Analysis
         </TabsTrigger>
-        <TabsTrigger value="structure">
+        <TabsTrigger value="structure" onClick={scrollTop}>
           <LayoutDashboard className="size-5" /> Structure
         </TabsTrigger>
-        <TabsTrigger value="metadata">
+        <TabsTrigger value="metadata" onClick={scrollTop}>
           <Braces className="size-5" /> Metadata
         </TabsTrigger>
-        <TabsTrigger value="showcase">
+        <TabsTrigger value="showcase" onClick={scrollTop}>
           <Eye className="size-5" /> Showcase
         </TabsTrigger>
       </TabsList>
@@ -120,102 +130,32 @@ export const SeoTabs = () => {
           </div>
           <div className="grid grid-cols-2 place-items-center gap-4 animate-slide-from-down-and-fade-2">
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-1">
-                <div className="flex items-center gap-2">
-                  {pageData.indexable ? (
-                    <Check className="size-6 text-green-700" />
-                  ) : (
-                    <AlertTriangle className="size-5 text-yellow-600" />
-                  )}
-                  <Label>URL indexable</Label>
-                </div>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        {pageData.indexable
-                          ? "This page can be indexed and will appear in search engine results since it lacks index-blocking directives or canonical URLs."
-                          : "This page cannot be indexed because it has index-blocking directives or canonical URLs that prevent it from appearing in search results."}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="flex items-center gap-2">
-                  {pageData.language !== "" ? (
-                    <Check className="size-6 text-green-700" />
-                  ) : (
-                    <AlertTriangle className="size-5 text-yellow-600" />
-                  )}
-                  <Label>Language</Label>
-                </div>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        The lang attribute is used to describe the intended
-                        language of the current page to user's browsers and
-                        Search Engines.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <AnalysisItem
+                label="URL indexable"
+                isPositive={pageData.indexable}
+                tooltipContent={
+                  pageData.indexable
+                    ? "This page can be indexed and will appear in search engine results since it lacks index-blocking directives or canonical URLs."
+                    : "This page cannot be indexed because it has index-blocking directives or canonical URLs that prevent it from appearing in search results."
+                }
+              />
+              <AnalysisItem
+                label="Language"
+                isPositive={pageData.language !== ""}
+                tooltipContent="The lang attribute is used to describe the intended language of the current page to user's browsers and Search Engines."
+              />
             </div>
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-1">
-                <div className="flex items-center gap-2">
-                  {hasDataOnOpenGraph ? (
-                    <Check className="size-6 text-green-700" />
-                  ) : (
-                    <AlertTriangle className="size-5 text-yellow-600" />
-                  )}
-                  <Label>Open Graph</Label>
-                </div>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        Open Graph metadata help control how your content is
-                        displayed when shared on social media.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="flex items-center gap-2">
-                  {hasDataOnTwitter ? (
-                    <Check className="size-6 text-green-700" />
-                  ) : (
-                    <AlertTriangle className="size-5 text-yellow-600" />
-                  )}
-                  <Label>Twitter Data</Label>
-                </div>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-3 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-48">
-                      <p>
-                        Twitter metadata help control how your content is
-                        displayed when shared on Twitter.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <AnalysisItem
+                label="Open Graph"
+                isPositive={hasDataOnOpenGraph}
+                tooltipContent="Open Graph metadata help control how your content is displayed when shared on social media."
+              />
+              <AnalysisItem
+                label="Twitter Data"
+                isPositive={hasDataOnTwitter}
+                tooltipContent="Twitter metadata help control how your content is displayed when shared on Twitter."
+              />
             </div>
           </div>
           <Separator className="animate-slide-from-down-and-fade-2" />
@@ -259,29 +199,16 @@ export const SeoTabs = () => {
               ))}
             </div>
             <div className="grid grid-cols-4 border border-t-0">
-              <div className="flex flex-col gap-2 items-center border-x p-4">
-                <Label className="uppercase text-xs">Words</Label>
-                <span className="text-xl leading-6">{pageData.totalWords}</span>
-              </div>
-              <div className="flex flex-col gap-2 items-center border-x p-4">
-                <Label className="uppercase text-xs">Characters</Label>
-                <span className="text-xl leading-6">
-                  {pageData.totalCharacters}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2 items-center border-x p-4">
-                <Label className="uppercase text-xs">Images</Label>
-                <span className="text-xl leading-6">
-                  {pageData.totalImages}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2 items-center border-x p-4">
-                <Label className="uppercase text-xs">Links</Label>
-                <span className="text-xl leading-6">
-                  {pageData.links.internal.length +
-                    pageData.links.external.length}
-                </span>
-              </div>
+              <StatItem label="Words" value={pageData.totalWords} />
+              <StatItem label="Characters" value={pageData.totalCharacters} />
+              <StatItem label="Images" value={pageData.totalImages} />
+              <StatItem
+                label="Links"
+                value={
+                  pageData.links.internal.length +
+                  pageData.links.external.length
+                }
+              />
             </div>
           </div>
         </div>
@@ -372,48 +299,29 @@ export const SeoTabs = () => {
       <TabsContent value="metadata">
         <div className="space-y-6">
           <div className="space-y-4 animate-slide-from-down-and-fade-1">
-            <div className="group relative">
-              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                Title
-              </label>
-              <Input
-                className="h-10"
-                placeholder="Missing"
-                value={pageData.title}
-              />
-            </div>
-            <div className="group relative">
-              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                Description
-              </label>
-              <Textarea
-                className="h-32"
-                placeholder="Missing"
-                value={pageData.description}
-              />
-            </div>
+            <FloatingLabelInput
+              label="Title"
+              value={pageData.title}
+              placeholder="Missing"
+            />
+            <FloatingLabelInput
+              label="Description"
+              value={pageData.description}
+              placeholder="Missing"
+              isTextarea
+            />
           </div>
           <div className="space-y-4 animate-slide-from-down-and-fade-2">
-            <div className="group relative">
-              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                Robots
-              </label>
-              <Input
-                className="h-10"
-                value={pageData.robots}
-                placeholder="Missing"
-              />
-            </div>
-            <div className="group relative">
-              <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                Language
-              </label>
-              <Input
-                className="h-10"
-                value={pageData.language}
-                placeholder="Not set"
-              />
-            </div>
+            <FloatingLabelInput
+              label="Robots"
+              value={pageData.robots}
+              placeholder="Missing"
+            />
+            <FloatingLabelInput
+              label="Language"
+              value={pageData.language}
+              placeholder="Not set"
+            />
           </div>
           <div className="flex space-x-4 animate-slide-from-down-and-fade-3">
             <Button
@@ -439,82 +347,49 @@ export const SeoTabs = () => {
           <div className="animate-slide-from-down-and-fade-5">
             <h2 className="font-semibold text-lg">Open Graph</h2>
             <div className="space-y-4 mt-2">
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Title
-                </label>
-                <Input
-                  className="h-10"
-                  value={pageData.openGraph.title}
-                  placeholder="No data found"
-                />
-              </div>
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Description
-                </label>
-                <Textarea
-                  className="h-32"
-                  value={pageData.openGraph.description}
-                  placeholder="No data found"
-                />
-              </div>
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Image
-                </label>
-                <Input
-                  className="h-10"
-                  value={pageData.openGraph.image}
-                  placeholder="No data found"
-                />
-              </div>
+              <FloatingLabelInput
+                label="Title"
+                value={pageData.openGraph.title}
+                placeholder="No data found"
+              />
+              <FloatingLabelInput
+                label="Description"
+                value={pageData.openGraph.description}
+                placeholder="No data found"
+                isTextarea
+              />
+              <FloatingLabelInput
+                label="Image"
+                value={pageData.openGraph.image}
+                placeholder="No data found"
+              />
             </div>
           </div>
           <Separator className="animate-slide-from-down-and-fade-5" />
           <div className="animate-slide-from-down-and-fade-6">
             <h2 className="font-semibold text-lg">Twitter</h2>
             <div className="space-y-4 mt-2">
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Card
-                </label>
-                <Input
-                  className="h-10"
-                  value={pageData.twitter.card}
-                  placeholder="No data found"
-                />
-              </div>
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Title
-                </label>
-                <Input
-                  className="h-10"
-                  value={pageData.twitter.title}
-                  placeholder="No data found"
-                />
-              </div>
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Description
-                </label>
-                <Textarea
-                  className="h-32"
-                  value={pageData.twitter.description}
-                  placeholder="No data found"
-                />
-              </div>
-              <div className="group relative">
-                <label className="absolute left-1 top-0 z-10 block -translate-y-1/2 bg-background px-2 text-xs font-medium text-foreground group-has-[:disabled]:opacity-50">
-                  Image
-                </label>
-                <Input
-                  className="h-10"
-                  value={pageData.twitter.image}
-                  placeholder="No data found"
-                />
-              </div>
+              <FloatingLabelInput
+                label="Card"
+                value={pageData.twitter.card}
+                placeholder="No data found"
+              />
+              <FloatingLabelInput
+                label="Title"
+                value={pageData.twitter.title}
+                placeholder="No data found"
+              />
+              <FloatingLabelInput
+                label="Description"
+                value={pageData.twitter.description}
+                placeholder="No data found"
+                isTextarea
+              />
+              <FloatingLabelInput
+                label="Image"
+                value={pageData.twitter.image}
+                placeholder="No data found"
+              />
             </div>
           </div>
         </div>
@@ -522,100 +397,46 @@ export const SeoTabs = () => {
 
       <TabsContent value="showcase">
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-1">
-            <div className="flex gap-2 items-center">
-              <h3 className="font-semibold">FACEBOOK</h3>
-              <hr className="w-full text-muted" />
-            </div>
-            <div className="overflow-hidden border">
-              <div className="relative h-0 w-full pb-[52.5%]">
-                <img
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={pageData.openGraph.image}
-                  alt="Preview image"
-                />
-              </div>
-              <div className="break-words border-t p-3 dark:bg-[#0E0E0F] light:bg-[#F2F3F5]">
-                <div className="overflow-hidden truncate font-light whitespace-nowrap text-xs uppercase leading-3">
-                  {getBaseUrl(pageData.url)}
-                </div>
-                <div className="mt-1 space-y-1 overflow-hidden">
-                  <h3 className="truncate text-base font-semibold leading-5">
-                    {pageData.openGraph.title}
-                  </h3>
-                  <p className="line-clamp-1 text-xs leading-5">
-                    {pageData.openGraph.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-2">
-            <div className="flex gap-2 items-center">
-              <h3 className="font-semibold">X</h3>
-              <hr className="w-full text-muted" />
-            </div>
-            <div className="relative overflow-hidden rounded-[0.85714em] border leading-[1.3em]">
-              <div className="relative h-0 w-full pb-[52.33%]">
-                <img
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={pageData.twitter.image}
-                  alt="Preview image"
-                />
-              </div>
-              <div className="absolute bottom-2 left-2 rounded bg-black bg-opacity-40 px-1 py-0.5 text-xs text-white">
-                {getBaseUrl(pageData.url)}
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-3">
-            <div className="flex gap-2 items-center">
-              <h3 className="font-semibold">LINKEDIN</h3>
-              <hr className="w-full text-muted" />
-            </div>
-            <div className="overflow-hidden rounded-sm shadow-md">
-              <div className="relative h-0 w-full pb-[52.25%]">
-                <img
-                  className="absolute inset-0 h-full w-full object-cover"
-                  src={pageData.openGraph.image}
-                  alt="Preview image"
-                />
-              </div>
-              <div className="break-words dark:bg-[#0E0E0F] light:bg-[#F2F3F5] p-2.5">
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold leading-6">
-                    {pageData.openGraph.title}
-                  </h3>
-                  <p className="truncate text-xs uppercase">
-                    {getBaseUrl(pageData.url)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-4">
-            <div className="flex gap-2 items-center">
-              <h3 className="font-semibold">DISCORD</h3>
-              <hr className="w-full text-muted" />
-            </div>
-            <div className="overflow-hidden rounded-sm border-l-4 border-[#202225] bg-[#2f3136]">
-              <div className="grid gap-2 p-3 pr-4">
-                <div className="text-base font-semibold text-[#00b0f4]">
-                  {pageData.openGraph.title}
-                </div>
-                <div className="whitespace-pre-line text-sm text-[#dcddde]">
-                  {pageData.openGraph.description}
-                </div>
-                <div className="mt-2 overflow-hidden rounded">
-                  <img
-                    src={pageData.openGraph.image}
-                    alt="Preview image"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <SocialPreviewSection
+            title="FACEBOOK"
+            className="animate-slide-from-down-and-fade-1"
+          >
+            <FacebookPreview
+              image={pageData.openGraph.image}
+              url={getBaseUrl(pageData.url)}
+              title={pageData.openGraph.title}
+              description={pageData.openGraph.description}
+            />
+          </SocialPreviewSection>
+          <SocialPreviewSection
+            title="X(TWITTER)"
+            className="animate-slide-from-down-and-fade-2"
+          >
+            <TwitterPreview
+              image={pageData.twitter.image}
+              url={getBaseUrl(pageData.url)}
+            />
+          </SocialPreviewSection>
+          <SocialPreviewSection
+            title="LINKEDIN"
+            className="animate-slide-from-down-and-fade-3"
+          >
+            <LinkedInPreview
+              image={pageData.openGraph.image}
+              url={getBaseUrl(pageData.url)}
+              title={pageData.openGraph.title}
+            />
+          </SocialPreviewSection>
+          <SocialPreviewSection
+            title="DISCORD"
+            className="animate-slide-from-down-and-fade-4"
+          >
+            <DiscordPreview
+              image={pageData.openGraph.image}
+              title={pageData.openGraph.title}
+              description={pageData.openGraph.description}
+            />
+          </SocialPreviewSection>
         </div>
       </TabsContent>
     </Tabs>

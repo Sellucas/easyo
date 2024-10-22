@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
     if (tabId !== undefined) {
       chrome.scripting.executeScript({
         target: { tabId: tabId },
-        func: () => {
+        func: async () => {
           const title = document.title;
           const ogTitle = document
             .querySelector("meta[property='og:title']")
@@ -58,8 +58,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
             ? keywordsMeta.content.split(",")
             : [];
           const canonicalURL = canonicalLink ? canonicalLink.href : url;
-          const isIndexable =
-            !robotsMetaT?.includes("noindex") && canonicalURL === url;
+
           const language = document.documentElement.lang;
           const h1Elements = document.querySelectorAll("h1").length;
           const h2Elements = document.querySelectorAll("h2").length;
@@ -74,6 +73,14 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const imageElements = document.querySelectorAll("img");
           const totalImages = imageElements.length;
 
+          const response = await fetch(url);
+          const httpStatus = response.status;
+
+          const isIndexable =
+            httpStatus === 200 &&
+            !robotsMetaT?.includes("noindex") &&
+            canonicalURL === url;
+
           chrome.runtime.sendMessage({
             url,
             title,
@@ -85,6 +92,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
             keywords,
             language,
             totalWords,
+            httpStatus,
             h1Elements,
             h2Elements,
             h3Elements,

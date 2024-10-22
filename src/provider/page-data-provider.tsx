@@ -48,6 +48,7 @@ type PageDataType = {
   links: LinksType;
   openGraph: OpenGraphType;
   twitter: TwitterType;
+  httpStatus: number
 };
 
 const initialPageData: PageDataType = {
@@ -66,6 +67,7 @@ const initialPageData: PageDataType = {
   totalCharacters: 0,
   totalWords: 0,
   totalImages: 0,
+  httpStatus: 0,
   keywords: [],
   robots: "",
   language: "",
@@ -86,7 +88,6 @@ const initialPageData: PageDataType = {
   },
 };
 
-// Criar contexto
 const PageDataContext = createContext<
   | {
       pageData: PageDataType;
@@ -112,6 +113,7 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
   totalCharacters: message.totalCharacters || 0,
   totalWords: message.totalWords || 0,
   totalImages: message.totalImages || 0,
+  httpStatus: message.httpStatus || 0,
   keywords: message.keywords || [],
   links: {
     internal: message.internalLinks || [],
