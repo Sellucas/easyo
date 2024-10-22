@@ -1,8 +1,8 @@
-import { Button } from "./ui/button";
+import { MoveRight } from "lucide-react";
 
 export const HeadingButton = () => {
   return (
-    <Button
+    <MoveRight
       onClick={() => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const tabId = tabs[0].id;
@@ -107,8 +107,7 @@ export const HeadingButton = () => {
           });
         });
       }}
-    >
-      H1 - H6
-    </Button>
+      className="size-6 hover:bg-[#0E0E0F] bg-background p-1 cursor-pointer rounded"
+    />
   );
 };

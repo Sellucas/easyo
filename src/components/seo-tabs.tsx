@@ -2,11 +2,9 @@ import {
   Eye,
   Info,
   List,
-  Check,
   Gauge,
   Braces,
   FileText,
-  AlertTriangle,
   LayoutDashboard,
 } from "lucide-react";
 
@@ -24,6 +22,7 @@ import {
 } from "./ui/tooltip";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { Timeline } from "./timeline";
 import { StatItem } from "./stat-item";
 import { Separator } from "./ui/separator";
 import { RadialChart } from "./radial-chart";
@@ -37,24 +36,6 @@ import { usePageData } from "@/provider/page-data-provider";
 import { FloatingLabelInput } from "./floating-label-input";
 import { SocialPreviewSection } from "./social-preview-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-
-type HeadingsType = {
-  h1: number;
-  h2: number;
-  h3: number;
-  h4: number;
-  h5: number;
-  h6: number;
-};
-
-const headingKeys: Array<keyof HeadingsType> = [
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-];
 
 const scrollTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -158,59 +139,6 @@ export const SeoTabs = () => {
               />
             </div>
           </div>
-          <Separator className="animate-slide-from-down-and-fade-2" />
-          <div className="flex flex-col animate-slide-from-down-and-fade-3">
-            <h2 className="font-semibold mb-2 text-lg">Total Count</h2>
-            <div className="flex items-center gap-1 mb-4">
-              <div className="flex items-center gap-2">
-                {pageData.headings.h1 > 0 ? (
-                  <Check className="size-6 text-green-700" />
-                ) : (
-                  <AlertTriangle className="size-5 text-yellow-600" />
-                )}
-                <Label>Headings</Label>
-              </div>
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="size-3 text-gray-500" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-48">
-                    <p>
-                      {pageData.headings.h1 > 0
-                        ? "This page has at least one H1 tag, which is important for SEO."
-                        : "It's recommended to include an H1 tag for better SEO as it helps search engines understand the primary topic of the page."}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="grid grid-cols-6 border">
-              {headingKeys.map((heading) => (
-                <div
-                  key={heading}
-                  className="flex flex-col gap-2 items-center border-x p-4"
-                >
-                  <Label className="uppercase text-xs">{heading}</Label>
-                  <span className="text-xl leading-6">
-                    {pageData.headings[heading]}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-4 border border-t-0">
-              <StatItem label="Words" value={pageData.totalWords} />
-              <StatItem label="Characters" value={pageData.totalCharacters} />
-              <StatItem label="Images" value={pageData.totalImages} />
-              <StatItem
-                label="Links"
-                value={
-                  pageData.links.internal.length +
-                  pageData.links.external.length
-                }
-              />
-            </div>
-          </div>
         </div>
       </TabsContent>
 
@@ -277,9 +205,29 @@ export const SeoTabs = () => {
               ))}
             </div>
           </div>
+          <Separator className="animate-slide-from-down-and-fade-2" />
           <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-3">
-            <Label>Headings</Label>
-            <HeadingButton />
+            <div className="flex gap-2 items-center">
+              <Label>Headings</Label>
+              <HeadingButton />
+            </div>
+            <Timeline />
+          </div>
+          <Separator className="animate-slide-from-down-and-fade-2" />
+          <div className="flex flex-col animate-slide-from-down-and-fade-3">
+            <h2 className="font-semibold mb-2 text-lg">Total Count</h2>
+            <div className="grid grid-cols-4">
+              <StatItem label="Words" value={pageData.totalWords} />
+              <StatItem label="Characters" value={pageData.totalCharacters} />
+              <StatItem label="Images" value={pageData.totalImages} />
+              <StatItem
+                label="Links"
+                value={
+                  pageData.links.internal.length +
+                  pageData.links.external.length
+                }
+              />
+            </div>
           </div>
           <Separator className="animate-slide-from-down-and-fade-3" />
           <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-4">

@@ -1,9 +1,9 @@
 import React, {
-  createContext,
-  useContext,
   useState,
   useEffect,
   ReactNode,
+  useContext,
+  createContext,
 } from "react";
 
 type HeadingsType = {
@@ -13,6 +13,15 @@ type HeadingsType = {
   h4: number;
   h5: number;
   h6: number;
+};
+
+type HeadingsContentType = {
+  h1: string[];
+  h2: string[];
+  h3: string[];
+  h4: string[];
+  h5: string[];
+  h6: string[];
 };
 
 type LinksType = {
@@ -33,12 +42,13 @@ type TwitterType = {
   image: string;
 };
 
-type PageDataType = {
+export type PageDataType = {
   url: string;
   indexable: boolean;
   title: string;
   description: string;
   headings: HeadingsType;
+  headingsContent: HeadingsContentType;
   totalCharacters: number;
   totalWords: number;
   totalImages: number;
@@ -48,7 +58,7 @@ type PageDataType = {
   links: LinksType;
   openGraph: OpenGraphType;
   twitter: TwitterType;
-  httpStatus: number
+  httpStatus: number;
 };
 
 const initialPageData: PageDataType = {
@@ -63,6 +73,14 @@ const initialPageData: PageDataType = {
     h4: 0,
     h5: 0,
     h6: 0,
+  },
+  headingsContent: {
+    h1: [],
+    h2: [],
+    h3: [],
+    h4: [],
+    h5: [],
+    h6: [],
   },
   totalCharacters: 0,
   totalWords: 0,
@@ -96,7 +114,6 @@ const PageDataContext = createContext<
   | undefined
 >(undefined);
 
-// Função auxiliar para atualizar os dados
 const updatePageData = (prevData: PageDataType, message: any) => ({
   ...prevData,
   title: message.title || "",
@@ -109,6 +126,14 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
     h4: message.h4Elements || 0,
     h5: message.h5Elements || 0,
     h6: message.h6Elements || 0,
+  },
+  headingsContent: {
+    h1: message.h1Content || [],
+    h2: message.h2Content || [],
+    h3: message.h3Content || [],
+    h4: message.h4Content || [],
+    h5: message.h5Content || [],
+    h6: message.h6Content || [],
   },
   totalCharacters: message.totalCharacters || 0,
   totalWords: message.totalWords || 0,
@@ -135,7 +160,6 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
   },
 });
 
-// Criar o provider
 export const PageDataProvider = ({ children }: { children: ReactNode }) => {
   const [pageData, setPageData] = useState<PageDataType>(initialPageData);
 
@@ -150,7 +174,7 @@ export const PageDataProvider = ({ children }: { children: ReactNode }) => {
       setPageData((prevData) => updatePageData(prevData, message));
     };
     chrome.runtime.onMessage.addListener(handleMessage);
-    return () => chrome.runtime.onMessage.removeListener(handleMessage); // Cleanup listener
+    return () => chrome.runtime.onMessage.removeListener(handleMessage);
   }, []);
 
   return (
@@ -160,7 +184,6 @@ export const PageDataProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook para usar o contexto
 export const usePageData = () => {
   const context = useContext(PageDataContext);
   if (!context) {

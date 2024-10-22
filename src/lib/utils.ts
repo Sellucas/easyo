@@ -1,22 +1,6 @@
+import { PageDataType } from "@/provider/page-data-provider";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-
-type DataType = {
-  title: string;
-  description: string;
-  url: string;
-  headings: { h1: number; h2: number; h3: number };
-  totalCharacters: number;
-  totalWords: number;
-  totalImages: number;
-  keywords: string[];
-  links: { internal: string[]; external: string[] };
-  robots: string;
-  indexable: boolean;
-  language: string;
-  openGraph: { title: string; description: string; image: string };
-  twitter: { card: string; title: string; description: string; image: string };
-};
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -48,12 +32,12 @@ export function calculateScore(
   return Math.max(outMin, Math.min(outMax, mappedValue));
 }
 
-export function calculateOverallScore(data: DataType): number {
+export function calculateOverallScore(data: PageDataType): number {
   let score = 0;
 
   const weights = {
-    title: 10,
-    description: 10,
+    title: 8,
+    description: 8,
     url: 5,
     h1: 5,
     h2: 5,
@@ -76,10 +60,12 @@ export function calculateOverallScore(data: DataType): number {
     ttImage: 2,
   };
 
-  const checkCondition = (value: any, invalidValues: any[] = []) => {
-    if (typeof value === "string" && value.trim() === "") return false;
+  const checkCondition = (value: any, invalidValues: any) => {
+    const invalidArray = Array.isArray(invalidValues)
+      ? invalidValues
+      : [invalidValues];
     return (
-      value !== null && value !== undefined && !invalidValues.includes(value)
+      value !== null && value !== undefined && !invalidArray.includes(value)
     );
   };
 
@@ -91,17 +77,29 @@ export function calculateOverallScore(data: DataType): number {
       weight: weights.url,
       invalid: ["Something went wrong..."],
     },
-    { value: data.headings.h1 > 0, weight: weights.h1 },
-    { value: data.headings.h2 > 0, weight: weights.h2 },
-    { value: data.headings.h3 > 0, weight: weights.h3 },
-    { value: data.totalCharacters > 0, weight: weights.totalCharacters },
-    { value: data.totalWords > 0, weight: weights.totalWords },
-    { value: data.totalImages > 0, weight: weights.totalImages },
-    { value: data.keywords.length > 0, weight: weights.keywords },
-    { value: data.links.internal.length > 0, weight: weights.internalLinks },
-    { value: data.links.external.length > 0, weight: weights.externalLinks },
+    { value: data.headings.h1, weight: weights.h1, invalid: 0 },
+    { value: data.headings.h2, weight: weights.h2, invalid: 0 },
+    { value: data.headings.h3, weight: weights.h3, invalid: 0 },
+    {
+      value: data.totalCharacters,
+      weight: weights.totalCharacters,
+      invalid: 0,
+    },
+    { value: data.totalWords, weight: weights.totalWords, invalid: 0 },
+    { value: data.totalImages, weight: weights.totalImages, invalid: 0 },
+    { value: data.keywords.length, weight: weights.keywords, invalid: 0 },
+    {
+      value: data.links.internal.length,
+      weight: weights.internalLinks,
+      invalid: 0,
+    },
+    {
+      value: data.links.external.length,
+      weight: weights.externalLinks,
+      invalid: 0,
+    },
     { value: data.robots, weight: weights.robots, invalid: [""] },
-    { value: data.indexable, weight: weights.indexable },
+    { value: data.indexable, weight: weights.indexable, invalid: [false] },
     { value: data.language, weight: weights.language, invalid: [""] },
     { value: data.openGraph.title, weight: weights.ogTitle, invalid: [""] },
     {
@@ -120,7 +118,7 @@ export function calculateOverallScore(data: DataType): number {
     { value: data.twitter.image, weight: weights.ttImage, invalid: [""] },
   ];
 
-  conditions.forEach(({ value, weight, invalid = [] }) => {
+  conditions.forEach(({ value, weight, invalid }) => {
     if (checkCondition(value, invalid)) {
       score += weight;
     }

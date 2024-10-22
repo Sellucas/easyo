@@ -51,6 +51,24 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const ttDescription = document
             .querySelector("meta[name='twitter:description']")
             ?.getAttribute("content");
+          const h1Content = Array.from(document.querySelectorAll("h1")).map(
+            (el) => el.textContent?.trim()
+          );
+          const h2Content = Array.from(document.querySelectorAll("h2")).map(
+            (el) => el.textContent?.trim()
+          );
+          const h3Content = Array.from(document.querySelectorAll("h3")).map(
+            (el) => el.textContent?.trim()
+          );
+          const h4Content = Array.from(document.querySelectorAll("h4")).map(
+            (el) => el.textContent?.trim()
+          );
+          const h5Content = Array.from(document.querySelectorAll("h5")).map(
+            (el) => el.textContent?.trim()
+          );
+          const h6Content = Array.from(document.querySelectorAll("h6")).map(
+            (el) => el.textContent?.trim()
+          );
 
           const robotsMetaT = robotsMeta;
           const url = window.location.href;
@@ -99,6 +117,12 @@ chrome.runtime.onMessage.addListener(async (message) => {
             h4Elements,
             h5Elements,
             h6Elements,
+            h1Content,
+            h2Content,
+            h3Content,
+            h4Content,
+            h5Content,
+            h6Content,
             robotsMetaT,
             description,
             isIndexable,
