@@ -216,9 +216,37 @@ export const SeoTabs = () => {
 
       <TabsContent value="structure">
         <div className="space-y-6">
-          <div className="space-y-1 animate-slide-from-down-and-fade-1">
-            <Label>URL</Label>
-            <div className="underline text-blue-500">{pageData.url}</div>
+          <div className="space-y-4 animate-slide-from-down-and-fade-1">
+            <div className="space-y-1">
+              <Label>URL</Label>
+              <div className="underline text-blue-500">{pageData.url}</div>
+            </div>
+            <div className="flex gap-1 items-center">
+              <Label>Status Code:</Label>
+              <div
+                className={`lining-nums text-base ${
+                  pageData.httpStatus === 200
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {pageData.httpStatus}
+              </div>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="size-3 text-gray-500" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-48 z-50">
+                    <p>
+                      This shows the HTTP status code, indicating if a request
+                      succeeded (200), failed (404), or had a server error
+                      (500).
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
           <div className="animate-slide-from-down-and-fade-2">
             <div className="flex gap-1 items-center">
