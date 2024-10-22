@@ -522,7 +522,7 @@ export const SeoTabs = () => {
 
       <TabsContent value="showcase">
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-1">
             <div className="flex gap-2 items-center">
               <h3 className="font-semibold">FACEBOOK</h3>
               <hr className="w-full text-muted" />
@@ -550,7 +550,7 @@ export const SeoTabs = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-2">
             <div className="flex gap-2 items-center">
               <h3 className="font-semibold">X</h3>
               <hr className="w-full text-muted" />
@@ -568,7 +568,7 @@ export const SeoTabs = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-3">
             <div className="flex gap-2 items-center">
               <h3 className="font-semibold">LINKEDIN</h3>
               <hr className="w-full text-muted" />
@@ -593,7 +593,7 @@ export const SeoTabs = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-4">
             <div className="flex gap-2 items-center">
               <h3 className="font-semibold">DISCORD</h3>
               <hr className="w-full text-muted" />
