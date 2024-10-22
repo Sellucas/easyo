@@ -1,4 +1,5 @@
 import {
+  Eye,
   Info,
   List,
   Check,
@@ -8,7 +9,6 @@ import {
   AlertTriangle,
   LayoutDashboard,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 import {
   Tooltip,
@@ -23,8 +23,14 @@ import { Textarea } from "./ui/textarea";
 import { Separator } from "./ui/separator";
 import { RadialChart } from "./radial-chart";
 import { HeadingButton } from "./heading-button";
+import { usePageData } from "@/provider/page-data-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { getDomain, calculateScore, calculateOverallScore } from "@/lib/utils";
+import {
+  getDomain,
+  calculateScore,
+  calculateOverallScore,
+  getBaseUrl,
+} from "@/lib/utils";
 
 type HeadingsType = {
   h1: number;
@@ -44,95 +50,8 @@ const headingKeys: Array<keyof HeadingsType> = [
   "h6",
 ];
 
-const initialPageData = {
-  url: "Something went wrong...",
-  indexable: false,
-  title: "",
-  description: "",
-  headings: {
-    h1: 0,
-    h2: 0,
-    h3: 0,
-    h4: 0,
-    h5: 0,
-    h6: 0,
-  },
-  totalCharacters: 0,
-  totalWords: 0,
-  totalImages: 0,
-  keywords: [],
-  robots: "",
-  language: "",
-  links: {
-    internal: [],
-    external: [],
-  },
-  openGraph: {
-    title: "",
-    description: "",
-    image: "",
-  },
-  twitter: {
-    card: "",
-    title: "",
-    description: "",
-    image: "",
-  },
-};
-
-const updatePageData = (prevData: typeof initialPageData, message: any) => ({
-  ...prevData,
-  title: message.title || "",
-  description: message.description || "",
-  url: message.url || "Something went wrong...",
-  headings: {
-    h1: message.h1Elements || 0,
-    h2: message.h2Elements || 0,
-    h3: message.h3Elements || 0,
-    h4: message.h4Elements || 0,
-    h5: message.h5Elements || 0,
-    h6: message.h6Elements || 0,
-  },
-  totalCharacters: message.totalCharacters || 0,
-  totalWords: message.totalWords || 0,
-  totalImages: message.totalImages || 0,
-  keywords: message.keywords || [],
-  links: {
-    internal: message.internalLinks || [],
-    external: message.externalLinks || [],
-  },
-  robots: message.robotsMetaT || "",
-  indexable: message.isIndexable || false,
-  language: message.language || "",
-  openGraph: {
-    title: message.ogTitle || "",
-    description: message.ogDescription || "",
-    image: message.ogImage || "",
-  },
-  twitter: {
-    card: message.ttCard || "",
-    title: message.ttTitle || "",
-    description: message.ttDescription || "",
-    image: message.ttImage || "",
-  },
-});
-
 export const SeoTabs = () => {
-  const [pageData, setPageData] = useState(initialPageData);
-
-  useEffect(() => {
-    const getActiveTabData = () =>
-      chrome.runtime.sendMessage({ action: "analyzePage" });
-    getActiveTabData();
-  }, []);
-
-  useEffect(() => {
-    const handleMessage = (message: any) => {
-      setPageData((prevData) => updatePageData(prevData, message));
-    };
-
-    chrome.runtime.onMessage.addListener(handleMessage);
-  }, []);
+  const { pageData } = usePageData();
 
   const baseUrl = getDomain(pageData.url);
   const hasDataOnOpenGraph = [
@@ -149,7 +68,7 @@ export const SeoTabs = () => {
 
   return (
     <Tabs defaultValue="analysis" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 content-center">
+      <TabsList className="grid w-full grid-cols-4 content-center">
         <TabsTrigger value="analysis">
           <Gauge className="size-5" />
           Analysis
@@ -159,6 +78,9 @@ export const SeoTabs = () => {
         </TabsTrigger>
         <TabsTrigger value="metadata">
           <Braces className="size-5" /> Metadata
+        </TabsTrigger>
+        <TabsTrigger value="showcase">
+          <Eye className="size-5" /> Showcase
         </TabsTrigger>
       </TabsList>
 
@@ -592,6 +514,105 @@ export const SeoTabs = () => {
                   value={pageData.twitter.image}
                   placeholder="No data found"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="showcase">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center">
+              <h3 className="font-semibold">FACEBOOK</h3>
+              <hr className="w-full text-muted" />
+            </div>
+            <div className="overflow-hidden border">
+              <div className="relative h-0 w-full pb-[52.5%]">
+                <img
+                  className="absolute inset-0 h-full w-full object-cover"
+                  src={pageData.openGraph.image}
+                  alt="Preview image"
+                />
+              </div>
+              <div className="break-words border-t p-3 dark:bg-[#0E0E0F] light:bg-[#F2F3F5]">
+                <div className="overflow-hidden truncate font-light whitespace-nowrap text-xs uppercase leading-3">
+                  {getBaseUrl(pageData.url)}
+                </div>
+                <div className="mt-1 space-y-1 overflow-hidden">
+                  <h3 className="truncate text-base font-semibold leading-5">
+                    {pageData.openGraph.title}
+                  </h3>
+                  <p className="line-clamp-1 text-xs leading-5">
+                    {pageData.openGraph.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center">
+              <h3 className="font-semibold">X</h3>
+              <hr className="w-full text-muted" />
+            </div>
+            <div className="relative overflow-hidden rounded-[0.85714em] border leading-[1.3em]">
+              <div className="relative h-0 w-full pb-[52.33%]">
+                <img
+                  className="absolute inset-0 h-full w-full object-cover"
+                  src={pageData.twitter.image}
+                  alt="Preview image"
+                />
+              </div>
+              <div className="absolute bottom-2 left-2 rounded bg-black bg-opacity-40 px-1 py-0.5 text-xs text-white">
+                {getBaseUrl(pageData.url)}
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center">
+              <h3 className="font-semibold">LINKEDIN</h3>
+              <hr className="w-full text-muted" />
+            </div>
+            <div className="overflow-hidden rounded-sm shadow-md">
+              <div className="relative h-0 w-full pb-[52.25%]">
+                <img
+                  className="absolute inset-0 h-full w-full object-cover"
+                  src={pageData.openGraph.image}
+                  alt="Preview image"
+                />
+              </div>
+              <div className="break-words dark:bg-[#0E0E0F] light:bg-[#F2F3F5] p-2.5">
+                <div className="space-y-1">
+                  <h3 className="text-base font-semibold leading-6">
+                    {pageData.openGraph.title}
+                  </h3>
+                  <p className="truncate text-xs uppercase">
+                    {getBaseUrl(pageData.url)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center">
+              <h3 className="font-semibold">DISCORD</h3>
+              <hr className="w-full text-muted" />
+            </div>
+            <div className="overflow-hidden rounded-sm border-l-4 border-[#202225] bg-[#2f3136]">
+              <div className="grid gap-2 p-3 pr-4">
+                <div className="text-base font-semibold text-[#00b0f4]">
+                  {pageData.openGraph.title}
+                </div>
+                <div className="whitespace-pre-line text-sm text-[#dcddde]">
+                  {pageData.openGraph.description}
+                </div>
+                <div className="mt-2 overflow-hidden rounded">
+                  <img
+                    src={pageData.openGraph.image}
+                    alt="Preview image"
+                    className="w-full"
+                  />
+                </div>
               </div>
             </div>
           </div>

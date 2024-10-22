@@ -24,6 +24,13 @@ export function cn(...inputs: ClassValue[]) {
 
 export const getDomain = (url: string) => url.split("/").slice(0, 3).join("/");
 
+export const getBaseUrl = (url: string): string => {
+  const withoutProtocol = url.replace(/^https?:\/\//, "");
+  const withoutWww = withoutProtocol.replace(/^www\./, "");
+  const domain = withoutWww.split("/")[0];
+  return domain;
+};
+
 export function calculateScore(
   value: number,
   inMin: number,
