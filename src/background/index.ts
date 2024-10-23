@@ -97,6 +97,23 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const imgAlts = Array.from(document.querySelectorAll("img[alt]")).map(
             (img) => img.getAttribute("alt")
           );
+          const checkInternalLinksStatus = await Promise.all(
+            internalLinks.map(async (link: any) => {
+              try {
+                const response = await fetch(link);
+                return response.status === 200;
+              } catch (error) {
+                return false;
+              }
+            })
+          );
+          const allInternalLinksValid = checkInternalLinksStatus.every(
+            (result) => result === true
+          );
+          const brokenUrlStatus = await fetch(
+            url + "/page-not-found-seo-check"
+          );
+          const isBrokenUrl = brokenUrlStatus.status === 404;
 
           chrome.runtime.sendMessage({
             url,
@@ -114,7 +131,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
             h3Content,
             h4Content,
             h5Content,
-            canonicalURL,
             h6Content,
             totalWords,
             httpStatus,
@@ -124,15 +140,18 @@ chrome.runtime.onMessage.addListener(async (message) => {
             h4Elements,
             h5Elements,
             h6Elements,
+            isBrokenUrl,
             robotsMetaT,
             description,
             isIndexable,
             totalImages,
+            canonicalURL,
             internalLinks,
             externalLinks,
             ogDescription,
             ttDescription,
             totalCharacters,
+            allInternalLinksValid,
           });
         },
       });

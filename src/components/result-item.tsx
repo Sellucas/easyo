@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check, ChevronDown, ChevronRight, Info, X } from "lucide-react";
 
 import {
@@ -53,10 +53,6 @@ const invalidSuffixes = [".htm", ".html", ".shtml", ".php", ".jsp", ".asp"];
 
 export const OverviewItem = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const [brokenUrlStatus, setBrokenUrlStatus] = useState<boolean | null>(null);
-  const [urlStatusInternal, setUrlStatusInternal] = useState<boolean | null>(
-    null
-  );
 
   const { pageData } = usePageData();
 
@@ -71,49 +67,6 @@ export const OverviewItem = () => {
     pageData.twitter.image,
     pageData.twitter.title,
   ].every((item) => item !== "");
-
-  const urlToCheck = pageData.url + "/page-not-found-seo-check";
-
-  async function checkPageStatus(url: any) {
-    try {
-      const response = await fetch(url);
-      return response.status === 404;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  async function checkAllLinksStatus(links: any) {
-    const results = await Promise.all(
-      links.map(async (link: any) => {
-        try {
-          const response = await fetch(link);
-          return response.status === 200;
-        } catch (error) {
-          return false;
-        }
-      })
-    );
-    return results.every((result) => result === true);
-  }
-
-  useEffect(() => {
-    const fetchStatusInternal = async () => {
-      const status = await checkAllLinksStatus(pageData.links.internal);
-      setUrlStatusInternal(status);
-    };
-
-    fetchStatusInternal();
-  }, [pageData.links.internal]);
-
-  useEffect(() => {
-    const fetchStatus = async () => {
-      const status = await checkPageStatus(urlToCheck);
-      setBrokenUrlStatus(status);
-    };
-
-    fetchStatus();
-  }, [urlToCheck]);
 
   return (
     <div className="min-h-screen px-8 animate-slide-from-down-and-fade-2">
@@ -234,14 +187,12 @@ export const OverviewItem = () => {
                   <ResultItem
                     label="Are internal links functioning properly?"
                     tooltip="Internal links should be working properly and should not return a 404 status code."
-                    status={
-                      urlStatusInternal === null ? true : urlStatusInternal
-                    }
+                    status={pageData.allInternalLinksValid}
                   />
                   <ResultItem
                     label="Do any broken URLs return a 404 status code?"
                     tooltip="Return a 404 HTTP status for non-existent URLs to inform search engines and guide visitors with a friendly 'not found' page."
-                    status={brokenUrlStatus === null ? false : brokenUrlStatus}
+                    status={pageData.isBrokenUrl}
                   />
                   <ResultItem
                     label="Is a canonical link provided?"

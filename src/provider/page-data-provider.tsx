@@ -61,6 +61,8 @@ export type PageDataType = {
   twitter: TwitterType;
   httpStatus: number;
   canonicalURL: boolean;
+  allInternalLinksValid: boolean;
+  isBrokenUrl: boolean;
 };
 
 const initialPageData: PageDataType = {
@@ -89,6 +91,8 @@ const initialPageData: PageDataType = {
   totalImages: 0,
   canonicalURL: false,
   httpStatus: 0,
+  allInternalLinksValid: false,
+  isBrokenUrl: false,
   keywords: [],
   imgAlts: [],
   robots: "",
@@ -114,6 +118,7 @@ const PageDataContext = createContext<
   | {
       pageData: PageDataType;
       setPageData: React.Dispatch<React.SetStateAction<PageDataType>>;
+      dataLoaded: boolean;
     }
   | undefined
 >(undefined);
@@ -144,6 +149,7 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
   totalImages: message.totalImages || 0,
   httpStatus: message.httpStatus || 0,
   canonicalURL: message.canonicalURL || false,
+  allInternalLinksValid: message.allInternalLinksValid || false,
   keywords: message.keywords || [],
   imgAlts: message.imgAlts || [],
   links: {
@@ -168,6 +174,7 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
 
 export const PageDataProvider = ({ children }: { children: ReactNode }) => {
   const [pageData, setPageData] = useState<PageDataType>(initialPageData);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     const getActiveTabData = () =>
@@ -178,13 +185,15 @@ export const PageDataProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const handleMessage = (message: any) => {
       setPageData((prevData) => updatePageData(prevData, message));
+      setDataLoaded(true);
     };
+
     chrome.runtime.onMessage.addListener(handleMessage);
     return () => chrome.runtime.onMessage.removeListener(handleMessage);
   }, []);
 
   return (
-    <PageDataContext.Provider value={{ pageData, setPageData }}>
+    <PageDataContext.Provider value={{ pageData, setPageData, dataLoaded }}>
       {children}
     </PageDataContext.Provider>
   );
