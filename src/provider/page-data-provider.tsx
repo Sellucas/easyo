@@ -50,6 +50,7 @@ export type PageDataType = {
   headings: HeadingsType;
   headingsContent: HeadingsContentType;
   totalCharacters: number;
+  imgAlts: string[];
   totalWords: number;
   totalImages: number;
   keywords: string[];
@@ -59,6 +60,7 @@ export type PageDataType = {
   openGraph: OpenGraphType;
   twitter: TwitterType;
   httpStatus: number;
+  canonicalURL: boolean;
 };
 
 const initialPageData: PageDataType = {
@@ -85,8 +87,10 @@ const initialPageData: PageDataType = {
   totalCharacters: 0,
   totalWords: 0,
   totalImages: 0,
+  canonicalURL: false,
   httpStatus: 0,
   keywords: [],
+  imgAlts: [],
   robots: "",
   language: "",
   links: {
@@ -139,7 +143,9 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
   totalWords: message.totalWords || 0,
   totalImages: message.totalImages || 0,
   httpStatus: message.httpStatus || 0,
+  canonicalURL: message.canonicalURL || false,
   keywords: message.keywords || [],
+  imgAlts: message.imgAlts || [],
   links: {
     internal: message.internalLinks || [],
     external: message.externalLinks || [],

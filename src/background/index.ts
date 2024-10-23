@@ -30,9 +30,9 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const robotsMeta = document
             .querySelector("meta[name='robots']")
             ?.getAttribute("content");
-          const canonicalLink = document.querySelector(
-            "link[rel='canonical']"
-          ) as HTMLLinkElement;
+          const canonicalLink = document
+            .querySelector("link[rel='canonical']")
+            ?.getAttribute("href");
           const ogDescription = document
             .querySelector("meta[property='og:description']")
             ?.getAttribute("content");
@@ -69,46 +69,53 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const h6Content = Array.from(document.querySelectorAll("h6")).map(
             (el) => el.textContent?.trim()
           );
-
           const robotsMetaT = robotsMeta;
           const url = window.location.href;
           const keywords = keywordsMeta?.content
             ? keywordsMeta.content.split(",")
             : [];
-          const canonicalURL = canonicalLink ? canonicalLink.href : url;
-
+          const canonicalURL = canonicalLink === url;
           const language = document.documentElement.lang;
-          const h1Elements = document.querySelectorAll("h1").length;
-          const h2Elements = document.querySelectorAll("h2").length;
-          const h3Elements = document.querySelectorAll("h3").length;
-          const h4Elements = document.querySelectorAll("h4").length;
-          const h5Elements = document.querySelectorAll("h5").length;
-          const h6Elements = document.querySelectorAll("h6").length;
+          const h1Elements = h1Content.length;
+          const h2Elements = h2Content.length;
+          const h3Elements = h3Content.length;
+          const h4Elements = h4Content.length;
+          const h5Elements = h5Content.length;
+          const h6Elements = h6Content.length;
           const bodyText = document.body.innerText.trim();
           const totalCharacters = bodyText.length;
           const wordsArray = bodyText.split(/\s+/).filter(Boolean);
           const totalWords = wordsArray.length;
           const imageElements = document.querySelectorAll("img");
           const totalImages = imageElements.length;
-
           const response = await fetch(url);
           const httpStatus = response.status;
-
           const isIndexable =
             httpStatus === 200 &&
             !robotsMetaT?.includes("noindex") &&
-            canonicalURL === url;
+            canonicalURL;
+          const imgAlts = Array.from(document.querySelectorAll("img[alt]")).map(
+            (img) => img.getAttribute("alt")
+          );
 
           chrome.runtime.sendMessage({
             url,
             title,
             ttCard,
+            imgAlts,
             ogTitle,
             ogImage,
             ttTitle,
             ttImage,
             keywords,
             language,
+            h1Content,
+            h2Content,
+            h3Content,
+            h4Content,
+            h5Content,
+            canonicalURL,
+            h6Content,
             totalWords,
             httpStatus,
             h1Elements,
@@ -117,16 +124,9 @@ chrome.runtime.onMessage.addListener(async (message) => {
             h4Elements,
             h5Elements,
             h6Elements,
-            h1Content,
-            h2Content,
-            h3Content,
-            h4Content,
-            h5Content,
-            h6Content,
             robotsMetaT,
             description,
             isIndexable,
-            canonicalURL,
             totalImages,
             internalLinks,
             externalLinks,

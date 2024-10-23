@@ -11,8 +11,9 @@ import {
 import {
   getDomain,
   getBaseUrl,
-  calculateScore,
   calculateOverallScore,
+  calculateContentDepthScore,
+  calculateLinkStructureScore,
 } from "@/lib/utils";
 import {
   Tooltip,
@@ -26,7 +27,7 @@ import { Timeline } from "./timeline";
 import { StatItem } from "./stat-item";
 import { Separator } from "./ui/separator";
 import { RadialChart } from "./radial-chart";
-import { AnalysisItem } from "./analysis-item";
+import { OverviewItem } from "./result-item";
 import { HeadingButton } from "./heading-button";
 import { TwitterPreview } from "./twitter-preview";
 import { DiscordPreview } from "./discord-preview";
@@ -45,17 +46,6 @@ export const SeoTabs = () => {
   const { pageData } = usePageData();
 
   const baseUrl = getDomain(pageData.url);
-  const hasDataOnOpenGraph = [
-    pageData.openGraph.description,
-    pageData.openGraph.image,
-    pageData.openGraph.title,
-  ].every((item) => item !== "");
-  const hasDataOnTwitter = [
-    pageData.twitter.card,
-    pageData.twitter.description,
-    pageData.twitter.image,
-    pageData.twitter.title,
-  ].every((item) => item !== "");
 
   return (
     <Tabs defaultValue="analysis" className="w-full">
@@ -77,68 +67,24 @@ export const SeoTabs = () => {
 
       <TabsContent value="analysis">
         <div className="space-y-8">
-          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-1">
-            <h2 className="font-semibold text-lg">Analysis Resume</h2>
-            <div className="grid grid-cols-3 place-items-center">
-              <RadialChart
-                title="Title"
-                count={calculateScore(
-                  pageData.title?.length ?? 0,
-                  0,
-                  50,
-                  0,
-                  100
-                )}
-                tooltip="The ideal length is between 50-60 characters. Titles should be unique, descriptive, and contain the primary keyword near the beginning."
-              />
-              <RadialChart
-                title="Description"
-                count={calculateScore(
-                  pageData.description?.length ?? 0,
-                  0,
-                  150,
-                  0,
-                  100
-                )}
-                tooltip="Keep the description between 150-160 characters. It should clearly summarize the content and include a call to action when appropriate."
-              />
-              <RadialChart
-                title="Overall"
-                count={calculateOverallScore(pageData)}
-                tooltip="A very good score is between 60 and 80. For best results, you should strive for 70 and above."
-              />
-            </div>
+          <div className="grid grid-cols-3 place-items-center animate-slide-from-down-and-fade-1">
+            <RadialChart
+              title="Overall"
+              count={calculateOverallScore(pageData)}
+              tooltip="A very good score is between 60 and 80. For best results, you should strive for 70 and above."
+            />
+            <RadialChart
+              title="Link Structure"
+              count={calculateLinkStructureScore(pageData)}
+              tooltip="Score based on the number of internal and external links, their ratio, and the quality of internal links (proper length, no invalid characters, and correct format)."
+            />
+            <RadialChart
+              title="Content Depth"
+              count={calculateContentDepthScore(pageData)}
+              tooltip="Measures the richness of a page's content based on word count, headings, and multimedia usage."
+            />
           </div>
-          <div className="grid grid-cols-2 place-items-center gap-4 animate-slide-from-down-and-fade-2">
-            <div className="flex flex-col gap-4">
-              <AnalysisItem
-                label="URL indexable"
-                isPositive={pageData.indexable}
-                tooltipContent={
-                  pageData.indexable
-                    ? "This page can be indexed and will appear in search engine results since it lacks index-blocking directives or canonical URLs."
-                    : "This page cannot be indexed because it has index-blocking directives or canonical URLs that prevent it from appearing in search results."
-                }
-              />
-              <AnalysisItem
-                label="Language"
-                isPositive={pageData.language !== ""}
-                tooltipContent="The lang attribute is used to describe the intended language of the current page to user's browsers and Search Engines."
-              />
-            </div>
-            <div className="flex flex-col gap-4">
-              <AnalysisItem
-                label="Open Graph"
-                isPositive={hasDataOnOpenGraph}
-                tooltipContent="Open Graph metadata help control how your content is displayed when shared on social media."
-              />
-              <AnalysisItem
-                label="Twitter Data"
-                isPositive={hasDataOnTwitter}
-                tooltipContent="Twitter metadata help control how your content is displayed when shared on Twitter."
-              />
-            </div>
-          </div>
+          <OverviewItem />
         </div>
       </TabsContent>
 
@@ -213,22 +159,6 @@ export const SeoTabs = () => {
             </div>
             <Timeline />
           </div>
-          <Separator className="animate-slide-from-down-and-fade-2" />
-          <div className="flex flex-col animate-slide-from-down-and-fade-3">
-            <h2 className="font-semibold mb-2 text-lg">Total Count</h2>
-            <div className="grid grid-cols-4">
-              <StatItem label="Words" value={pageData.totalWords} />
-              <StatItem label="Characters" value={pageData.totalCharacters} />
-              <StatItem label="Images" value={pageData.totalImages} />
-              <StatItem
-                label="Links"
-                value={
-                  pageData.links.internal.length +
-                  pageData.links.external.length
-                }
-              />
-            </div>
-          </div>
           <Separator className="animate-slide-from-down-and-fade-3" />
           <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-4">
             <Label>Links</Label>
@@ -266,6 +196,32 @@ export const SeoTabs = () => {
                     </li>
                   ))}
                 </ul>
+              </div>
+            </div>
+          </div>
+          <Separator className="animate-slide-from-down-and-fade-2" />
+          <div className="flex flex-col gap-2 animate-slide-from-down-and-fade-3">
+            <Label>Total Count</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-2">
+                <StatItem label="H1" value={pageData.headings.h1} />
+                <StatItem label="H2" value={pageData.headings.h2} />
+                <StatItem label="H3" value={pageData.headings.h3} />
+                <StatItem label="H4" value={pageData.headings.h4} />
+                <StatItem label="H5" value={pageData.headings.h5} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <StatItem label="H6" value={pageData.headings.h6} />
+                <StatItem label="Words" value={pageData.totalWords} />
+                <StatItem label="Characters" value={pageData.totalCharacters} />
+                <StatItem label="Images" value={pageData.totalImages} />
+                <StatItem
+                  label="Links"
+                  value={
+                    pageData.links.internal.length +
+                    pageData.links.external.length
+                  }
+                />
               </div>
             </div>
           </div>
