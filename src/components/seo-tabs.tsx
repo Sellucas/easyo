@@ -84,7 +84,10 @@ export const SeoTabs = () => {
               tooltip="Measures the richness of a page's content based on word count, headings, and multimedia usage."
             />
           </div>
-          <OverviewItem />
+          <div className="flex flex-col gpa-4">
+            <OverviewItem />
+            <Separator />
+          </div>
         </div>
       </TabsContent>
 
@@ -225,6 +228,7 @@ export const SeoTabs = () => {
               </div>
             </div>
           </div>
+          <Separator />
         </div>
       </TabsContent>
 
@@ -324,6 +328,7 @@ export const SeoTabs = () => {
               />
             </div>
           </div>
+          <Separator />
         </div>
       </TabsContent>
 
@@ -369,6 +374,7 @@ export const SeoTabs = () => {
               description={pageData.openGraph.description}
             />
           </SocialPreviewSection>
+          <Separator />
         </div>
       </TabsContent>
     </Tabs>

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0",
+  "version": "1.0.1",
   "name": "easyo - SEO Analyzer",
   "description": "A Chrome extension to analyze SEO data.",
   "action": {

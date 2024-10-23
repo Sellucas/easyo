@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Popup from "./Popup.tsx";
 import "./index.css";
+import Popup from "./Popup.tsx";
 import { ThemeProvider } from "./provider/theme-provider.tsx";
 import { PageDataProvider } from "./provider/page-data-provider.tsx";
 

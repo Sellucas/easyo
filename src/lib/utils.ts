@@ -6,14 +6,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getDomain = (url: string) => url.split("/").slice(0, 3).join("/");
+export function getDomain(url: string) {
+  url.split("/").slice(0, 3).join("/");
+}
 
-export const getBaseUrl = (url: string): string => {
+export function getBaseUrl(url: string): string {
   const withoutProtocol = url.replace(/^https?:\/\//, "");
   const withoutWww = withoutProtocol.replace(/^www\./, "");
   const domain = withoutWww.split("/")[0];
   return domain;
-};
+}
 
 export function calculateScore(
   value: number,
@@ -38,9 +40,7 @@ const checkCondition = (value: any, invalidValues: any) => {
   const invalidArray = Array.isArray(invalidValues)
     ? invalidValues
     : [invalidValues];
-  return (
-    value !== null && value !== undefined && !invalidArray.includes(value)
-  );
+  return value !== null && value !== undefined && !invalidArray.includes(value);
 };
 
 export function calculateOverallScore(data: PageDataType): number {
@@ -63,8 +63,6 @@ export function calculateOverallScore(data: PageDataType): number {
     openGraph: 5,
     twitterCard: 5,
   };
-
-  
 
   const conditions = [
     { value: data.title, weight: weights.title, invalid: [""] },
