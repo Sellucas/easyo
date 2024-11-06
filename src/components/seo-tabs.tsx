@@ -38,6 +38,7 @@ import { FloatingLabelInput } from "./floating-label-input";
 import { SocialPreviewSection } from "./social-preview-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { LoadingSpinner } from "./loading-spinner";
+import { ScrollArea } from "./ui/scroll-area";
 
 const scrollTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -150,14 +151,20 @@ export const SeoTabs = () => {
                   </TooltipProvider>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {pageData.keywords.map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="bg-muted text-secondary-foreground px-2 py-1 rounded-full text-xs"
-                    >
-                      {keyword}
+                  {pageData.keywords.length > 0 ? (
+                    pageData.keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="bg-muted text-secondary-foreground px-2 py-1 rounded-full text-xs"
+                      >
+                        {keyword}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="bg-muted text-secondary-foreground px-2 py-1 rounded-full text-xs">
+                      none
                     </span>
-                  ))}
+                  )}
                 </div>
               </div>
               <Separator className="animate-slide-from-down-and-fade-2" />
@@ -173,38 +180,52 @@ export const SeoTabs = () => {
                 <Label>Links</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm">Internal</p>
-                    <ul className="py-1">
-                      {pageData.links.internal.map((link, index) => (
-                        <li key={index}>
-                          <p
-                            className="text-blue-500 text-xs hover:underline cursor-pointer break-words"
-                            onClick={() => {
-                              window.open(link);
-                            }}
-                          >
-                            {link}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex gap-2">
+                      <p className="text-sm">Internal</p>
+                      <span className="bg-muted text-secondary-foreground px-2 py-0.5 rounded-full text-[10px] lining-nums">
+                        {pageData.links.internal.length}
+                      </span>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      <ul className="py-1 space-y-2">
+                        {pageData.links.internal.map((link, index) => (
+                          <li key={index}>
+                            <p
+                              className="text-blue-500 text-xs hover:underline cursor-pointer break-words"
+                              onClick={() => {
+                                window.open(link);
+                              }}
+                            >
+                              {link}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </ScrollArea>
                   </div>
                   <div>
-                    <p className="text-sm">External</p>
-                    <ul className="py-1">
-                      {pageData.links.external.map((link, index) => (
-                        <li key={index}>
-                          <p
-                            className="text-blue-500 text-xs hover:underline cursor-pointer break-words"
-                            onClick={() => {
-                              window.open(link);
-                            }}
-                          >
-                            {link}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex gap-2">
+                      <p className="text-sm">External</p>
+                      <span className="bg-muted text-secondary-foreground px-2 py-0.5 rounded-full text-[10px] lining-nums">
+                        {pageData.links.external.length}
+                      </span>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      <ul className="py-1 space-y-2">
+                        {pageData.links.external.map((link, index) => (
+                          <li key={index}>
+                            <p
+                              className="text-blue-500 text-xs hover:underline cursor-pointer break-words"
+                              onClick={() => {
+                                window.open(link);
+                              }}
+                            >
+                              {link}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </ScrollArea>
                   </div>
                 </div>
               </div>

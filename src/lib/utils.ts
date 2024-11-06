@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getDomain(url: string) {
-  url.split("/").slice(0, 3).join("/");
+  return url.split("/").slice(0, 3).join("/");
 }
 
 export function getBaseUrl(url: string): string {
@@ -141,26 +141,26 @@ export function calculateOverallScore(data: PageDataType): number {
 export function calculateLinkStructureScore(data: PageDataType): number {
   let score = 0;
 
-  const internalLinks = data.links.internal?.length;
+  const internalLinks = data.links.internal?.length || 0;
   if (internalLinks >= 3 && internalLinks <= 5) {
-    score += 50 * 0.2;
-  } else if (internalLinks >= 6 && internalLinks <= 10) {
-    score += 100 * 0.2;
+    score += 10;
+  } else if (internalLinks > 5) {
+    score += 25;
   }
 
-  const externalLinks = data.links.external?.length;
+  const externalLinks = data.links.external?.length || 0;
   if (externalLinks >= 1 && externalLinks <= 3) {
-    score += 100 * 0.15;
-  } else if (externalLinks > 3 && externalLinks <= 5) {
-    score += 50 * 0.15;
+    score += 20;
+  } else if (externalLinks > 3) {
+    score += 10;
   }
 
   const totalLinks = internalLinks + externalLinks;
   const internalLinkRatio = totalLinks > 0 ? internalLinks / totalLinks : 0;
   if (internalLinkRatio >= 0.7) {
-    score += 100 * 0.15;
-  } else if (internalLinkRatio >= 0.5) {
-    score += 50 * 0.15;
+    score += 25;
+  } else if (internalLinkRatio <= 0.5) {
+    score += 10;
   }
 
   const validInternalLinks = data.links.internal?.filter(
@@ -171,17 +171,16 @@ export function calculateLinkStructureScore(data: PageDataType): number {
       !link.includes("%20") &&
       !link.includes("_") &&
       link === link.toLowerCase()
-  );
-
-  const highQualityLinkPercentage =
-    (validInternalLinks.length / internalLinks) * 100;
+  ) || [];
+  
+  const highQualityLinkPercentage = (validInternalLinks.length / internalLinks) * 100;
   if (highQualityLinkPercentage >= 70) {
-    score += 100 * 0.25;
-  } else if (highQualityLinkPercentage >= 50) {
-    score += 50 * 0.25;
+    score += 30;
+  } else if (highQualityLinkPercentage <= 50) {
+    score += 15;
   }
 
-  return Math.min(Math.max(score, 0), 100);
+  return Math.min(Math.round(score), 100);
 }
 
 export function calculateContentDepthScore(data: PageDataType): number {

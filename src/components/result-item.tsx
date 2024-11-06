@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Check, ChevronDown, ChevronRight, Info, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  Info,
+  X,
+} from "lucide-react";
 
 import {
   Collapsible,
@@ -14,36 +21,98 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { Badge } from "./ui/badge";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface ResultItemProps {
   label: string;
   status: boolean;
   tooltip?: string;
+  expandedContent?: React.ReactNode;
+  expandedContentData?: string[];
 }
 
-const ResultItem = ({ label, status, tooltip }: ResultItemProps) => {
+const ResultItem = ({
+  label,
+  status,
+  tooltip,
+  expandedContent,
+  expandedContentData,
+}: ResultItemProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    if (!status && expandedContent) {
+      setIsExpanded(!isExpanded);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center">
-        <hr className="w-4" />
-        <span className="text-xs px-1">{label}</span>
-        {tooltip && (
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger className="z-50">
-                <Info className="size-3 text-gray-500" />
-              </TooltipTrigger>
-              <TooltipContent className="max-w-48">
-                <p>{tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+    <div>
+      <div
+        className={`flex items-center justify-between gap-2 ${
+          !status && expandedContent ? "cursor-pointer" : ""
+        }`}
+        onClick={toggleExpand}
+      >
+        <div className="flex items-center">
+          <hr className="w-4" />
+          <span className="text-xs px-1">{label}</span>
+          {tooltip && (
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger className="z-50">
+                  <Info className="size-3 text-gray-500" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-48">
+                  <p>{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        <div className="flex items-center">
+          {!status &&
+            expandedContent &&
+            (isExpanded ? (
+              <ChevronDown className="size-4 ml-2 text-accent-foreground" />
+            ) : (
+              <ChevronRight className="size-4 ml-2 text-accent-foreground" />
+            ))}
+          {status ? (
+            <Check className="size-4 text-green-500" />
+          ) : (
+            <X className="size-4 text-red-500" />
+          )}
+        </div>
       </div>
-      {status === true ? (
-        <Check className="size-4 text-green-500" />
-      ) : (
-        <X className="size-4 text-red-500" />
+      {isExpanded && expandedContent && (
+        <div className="mt-2 ml-6 text-sm">
+          <div className="space-y-2 bg-destructive/10 p-4 rounded-md">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Invalid Links</h3>
+              <Badge variant="destructive" className="lining-nums">
+                {expandedContentData?.length}
+              </Badge>
+            </div>
+            <ScrollArea className="h-[200px] rounded border">
+              <ul className="space-y-2 p-2">
+                {expandedContentData?.map((link, index) => (
+                  <li key={index} className="flex items-start space-x-2">
+                    <ExternalLink className="size-3 mt-0.5 flex-shrink-0" />
+                    <a
+                      href={link}
+                      target="_blank"
+                      className="text-xs hover:underline break-all text-blue-500"
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -67,6 +136,18 @@ export const OverviewItem = () => {
     pageData.twitter.image,
     pageData.twitter.title,
   ].every((item) => item !== "");
+  const filteredInternalLinks = pageData.links.internal.filter(
+    (link) => link.length > 100
+  );
+  const filteredInvalidExtension = pageData.links.internal.filter((link) =>
+    invalidSuffixes.some((suffix) => link.endsWith(suffix))
+  );
+  const filteredInvalidSymbols = pageData.links.internal.filter(
+    (link) => link.includes("+") && link.includes("%20") && link.includes("_")
+  );
+  const filteredInvalidLength = pageData.links.internal.filter(
+    (link) => link != link.toLowerCase()
+  );
 
   return (
     <div className="min-h-screen px-8 animate-slide-from-down-and-fade-2">
@@ -177,6 +258,11 @@ export const OverviewItem = () => {
                     label="Is a language set for the page?"
                     status={pageData.language ? true : false}
                   />
+                  <ResultItem
+                    label="Is there iframes in the page?"
+                    tooltip="Frames hinder search engines from properly indexing content, making text and hyperlinks appear missing, which negatively affects website ranking."
+                    status={pageData.frames.length === 0}
+                  />
                 </div>
               </div>
             </div>
@@ -187,10 +273,12 @@ export const OverviewItem = () => {
                   <ResultItem
                     label="Are internal links functioning properly?"
                     tooltip="Internal links should be working properly and should not return a 404 status code."
-                    status={pageData.allInternalLinksValid}
+                    status={pageData.invalidLinks.length === 0}
+                    expandedContent
+                    expandedContentData={pageData.invalidLinks}
                   />
                   <ResultItem
-                    label="Do any broken URLs return a 404 status code?"
+                    label="Do non-existent URLs return a 404 status code?"
                     tooltip="Return a 404 HTTP status for non-existent URLs to inform search engines and guide visitors with a friendly 'not found' page."
                     status={pageData.isBrokenUrl}
                   />
@@ -214,39 +302,35 @@ export const OverviewItem = () => {
                   <ResultItem
                     label="Are all URLs short enough?"
                     tooltip="URLs should be under 100 characters long."
-                    status={pageData.links.internal.every(
-                      (link) => link.length < 100
-                    )}
+                    status={filteredInternalLinks.length === 0}
+                    expandedContent
+                    expandedContentData={filteredInternalLinks}
                   />
                   <ResultItem
-                    label="Are the URLs indexable?"
+                    label="Are the URL indexable?"
                     tooltip="To ensure a URL is indexable, it must be accessible without restrictions in the robots.txt file, not contain a noindex tag, and be functional without redirects or 404 errors."
                     status={pageData.indexable}
                   />
                   <ResultItem
                     label="Do the URLs have valid extensions?"
                     tooltip="Keep URLs clean by avoiding unnecessary extensions like .html, .php, or .asp, as they don’t add value for users and can make URLs longer and less user-friendly."
-                    status={pageData.links.internal.every(
-                      (link) =>
-                        !invalidSuffixes.some((suffix) => link.endsWith(suffix))
-                    )}
+                    status={filteredInvalidExtension.length === 0}
+                    expandedContent
+                    expandedContentData={filteredInvalidExtension}
                   />
                   <ResultItem
                     label="Do any URLs contain symbols?"
                     tooltip="Avoid symbols (+, %20, _, etc.) in URLs to make them more user-friendly and easier to read."
-                    status={pageData.links.internal.every(
-                      (link) =>
-                        !link.includes("+") &&
-                        !link.includes("%20") &&
-                        !link.includes("_")
-                    )}
+                    status={filteredInvalidSymbols.length === 0}
+                    expandedContent
+                    expandedContentData={filteredInvalidSymbols}
                   />
                   <ResultItem
                     label="Are all URLs in lowercase?"
                     tooltip="URLs should be lowercase to make them more user-friendly and easier to read."
-                    status={pageData.links.internal.every(
-                      (link) => link === link.toLowerCase()
-                    )}
+                    status={filteredInvalidLength.length === 0}
+                    expandedContent
+                    expandedContentData={filteredInvalidLength}
                   />
                 </div>
               </div>

@@ -61,8 +61,9 @@ export type PageDataType = {
   twitter: TwitterType;
   httpStatus: number;
   canonicalURL: boolean;
-  allInternalLinksValid: boolean;
   isBrokenUrl: boolean;
+  invalidLinks: string[];
+  frames: string[];
 };
 
 const initialPageData: PageDataType = {
@@ -91,10 +92,11 @@ const initialPageData: PageDataType = {
   totalImages: 0,
   canonicalURL: false,
   httpStatus: 0,
-  allInternalLinksValid: false,
+  invalidLinks: [],
   isBrokenUrl: false,
   keywords: [],
   imgAlts: [],
+  frames: [],
   robots: "",
   language: "",
   links: {
@@ -149,9 +151,11 @@ const updatePageData = (prevData: PageDataType, message: any) => ({
   totalImages: message.totalImages || 0,
   httpStatus: message.httpStatus || 0,
   canonicalURL: message.canonicalURL || false,
-  allInternalLinksValid: message.allInternalLinksValid || false,
   keywords: message.keywords || [],
   imgAlts: message.imgAlts || [],
+  frames: message.frames || [],
+  invalidLinks: message.invalidLinks || [],
+  isBrokenUrl: message.isBrokenUrl || false,
   links: {
     internal: message.internalLinks || [],
     external: message.externalLinks || [],
