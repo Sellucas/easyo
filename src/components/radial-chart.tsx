@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Label,
   PolarGrid,
@@ -8,17 +6,16 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts";
+import { Info } from "lucide-react";
 
-import { Label as LabelUi } from "./ui/label";
-
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
+  TooltipProvider,
 } from "./ui/tooltip";
-import { Info } from "lucide-react";
+import { Label as LabelUi } from "./ui/label";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 const chartConfig = {
   colorCountGreen: {
@@ -41,10 +38,10 @@ interface RadialChartProps {
 export function RadialChart({ title, count, tooltip }: RadialChartProps) {
   const fillColor =
     count >= 70
-      ? "var(--color-colorCountGreen)"
+      ? "#22c55e" // Green
       : count >= 40
-      ? "var(--color-colorCountYellow)"
-      : "var(--color-colorCountRed)";
+      ? "#f59e0b" // Yellow
+      : "#dc2626"; // Red
 
   const chartData = [{ count: count, fill: fillColor }];
 

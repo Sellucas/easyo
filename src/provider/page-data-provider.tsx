@@ -1,3 +1,4 @@
+import { PageDataType } from "@/types";
 import React, {
   useState,
   useEffect,
@@ -5,66 +6,6 @@ import React, {
   useContext,
   createContext,
 } from "react";
-
-type HeadingsType = {
-  h1: number;
-  h2: number;
-  h3: number;
-  h4: number;
-  h5: number;
-  h6: number;
-};
-
-type HeadingsContentType = {
-  h1: string[];
-  h2: string[];
-  h3: string[];
-  h4: string[];
-  h5: string[];
-  h6: string[];
-};
-
-type LinksType = {
-  internal: string[];
-  external: string[];
-};
-
-type OpenGraphType = {
-  title: string;
-  description: string;
-  image: string;
-};
-
-type TwitterType = {
-  card: string;
-  title: string;
-  description: string;
-  image: string;
-};
-
-export type PageDataType = {
-  url: string;
-  indexable: boolean;
-  title: string;
-  description: string;
-  headings: HeadingsType;
-  headingsContent: HeadingsContentType;
-  totalCharacters: number;
-  imgAlts: string[];
-  totalWords: number;
-  totalImages: number;
-  keywords: string[];
-  robots: string;
-  language: string;
-  links: LinksType;
-  openGraph: OpenGraphType;
-  twitter: TwitterType;
-  httpStatus: number;
-  canonicalURL: boolean;
-  isBrokenUrl: boolean;
-  invalidLinks: string[];
-  frames: string[];
-};
 
 const initialPageData: PageDataType = {
   url: "Something went wrong...",
@@ -206,7 +147,7 @@ export const PageDataProvider = ({ children }: { children: ReactNode }) => {
 export const usePageData = () => {
   const context = useContext(PageDataContext);
   if (!context) {
-    throw new Error("usePageData deve ser usado dentro de PageDataProvider");
+    throw new Error("usePageData must be used within a PageDataProvider");
   }
   return context;
 };

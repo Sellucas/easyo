@@ -1,6 +1,7 @@
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "../provider/theme-provider";
+
 import { Button } from "./ui/button";
+import { useTheme } from "../provider/theme-provider";
 
 export const Header = () => {
   const { theme, setTheme } = useTheme();

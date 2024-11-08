@@ -1,4 +1,4 @@
-import { PageDataType } from "@/provider/page-data-provider";
+import { PageDataType } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,11 +10,8 @@ export function getDomain(url: string) {
   return url.split("/").slice(0, 3).join("/");
 }
 
-export function getBaseUrl(url: string): string {
-  const withoutProtocol = url.replace(/^https?:\/\//, "");
-  const withoutWww = withoutProtocol.replace(/^www\./, "");
-  const domain = withoutWww.split("/")[0];
-  return domain;
+export function getBaseUrl(url: string) {
+  return url.replace(/^https?:\/\/(www\.)?/, "").split("/")[0];
 }
 
 export function calculateScore(
@@ -23,15 +20,11 @@ export function calculateScore(
   inMax: number,
   outMin: number,
   outMax: number
-): number {
+) {
   value = Math.max(inMin, Math.min(inMax, value));
-
-  let mappedValue =
+  const mappedValue =
     ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-
-  mappedValue = Math.round(mappedValue);
-
-  return Math.max(outMin, Math.min(outMax, mappedValue));
+  return Math.max(outMin, Math.min(outMax, Math.round(mappedValue)));
 }
 
 const invalidSuffixes = [".htm", ".html", ".shtml", ".php", ".jsp", ".asp"];
@@ -40,28 +33,26 @@ const checkCondition = (value: any, invalidValues: any) => {
   const invalidArray = Array.isArray(invalidValues)
     ? invalidValues
     : [invalidValues];
-  return value !== null && value !== undefined && !invalidArray.includes(value);
+  return value != null && !invalidArray.includes(value);
 };
 
 export function calculateOverallScore(data: PageDataType): number {
-  let score = 0;
-
   const weights = {
     title: 8,
-    description: 8,
-    url: 8,
+    description: 7,
+    url: 7,
     h1: 6,
-    content: 8,
+    content: 7,
     images: 4,
-    internalLinks: 10,
+    internalLinks: 9,
     externalLinks: 5,
-    robots: 10,
-    indexable: 8,
-    canonicalURL: 5,
-    language: 5,
-    urlAnalysis: 10,
-    openGraph: 5,
-    twitterCard: 5,
+    robots: 9,
+    indexable: 7,
+    canonicalURL: 4,
+    language: 4,
+    urlAnalysis: 9,
+    openGraph: 4,
+    twitterCard: 4,
   };
 
   const conditions = [
@@ -79,7 +70,7 @@ export function calculateOverallScore(data: PageDataType): number {
       invalid: [false],
     },
     {
-      value: data.imgAlts.every((alt: string) => alt),
+      value: data.imgAlts.every((alt) => alt),
       weight: weights.images,
       invalid: [false],
     },
@@ -116,7 +107,7 @@ export function calculateOverallScore(data: PageDataType): number {
     },
     {
       value: data.links.internal.every(
-        (link: string) =>
+        (link) =>
           !invalidSuffixes.some((suffix) => link.endsWith(suffix)) &&
           link.length < 100 &&
           !link.includes("+") &&
@@ -129,63 +120,49 @@ export function calculateOverallScore(data: PageDataType): number {
     },
   ];
 
-  conditions.forEach(({ value, weight, invalid }) => {
-    if (checkCondition(value, invalid)) {
-      score += weight;
-    }
-  });
-
-  return score;
+  return conditions.reduce(
+    (score, { value, weight, invalid }) =>
+      checkCondition(value, invalid) ? score + weight : score,
+    0
+  );
 }
 
 export function calculateLinkStructureScore(data: PageDataType): number {
   let score = 0;
-
   const internalLinks = data.links.internal?.length || 0;
-  if (internalLinks >= 3 && internalLinks <= 5) {
-    score += 10;
-  } else if (internalLinks > 5) {
-    score += 25;
-  }
-
   const externalLinks = data.links.external?.length || 0;
-  if (externalLinks >= 1 && externalLinks <= 3) {
-    score += 20;
-  } else if (externalLinks > 3) {
-    score += 10;
-  }
-
   const totalLinks = internalLinks + externalLinks;
-  const internalLinkRatio = totalLinks > 0 ? internalLinks / totalLinks : 0;
-  if (internalLinkRatio >= 0.7) {
-    score += 25;
-  } else if (internalLinkRatio <= 0.5) {
-    score += 10;
-  }
 
-  const validInternalLinks = data.links.internal?.filter(
-    (link: string) =>
-      !invalidSuffixes.some((suffix) => link.endsWith(suffix)) &&
-      link.length < 100 &&
-      !link.includes("+") &&
-      !link.includes("%20") &&
-      !link.includes("_") &&
-      link === link.toLowerCase()
-  ) || [];
-  
-  const highQualityLinkPercentage = (validInternalLinks.length / internalLinks) * 100;
-  if (highQualityLinkPercentage >= 70) {
-    score += 30;
-  } else if (highQualityLinkPercentage <= 50) {
-    score += 15;
-  }
+  if (internalLinks >= 3 && internalLinks <= 5) score += 10;
+  else if (internalLinks > 5) score += 25;
+
+  if (externalLinks >= 1 && externalLinks <= 3) score += 20;
+  else if (externalLinks > 3) score += 10;
+
+  const internalLinkRatio = totalLinks > 0 ? internalLinks / totalLinks : 0;
+  if (internalLinkRatio >= 0.7) score += 25;
+  else if (internalLinkRatio <= 0.5) score += 10;
+
+  const validInternalLinks =
+    data.links.internal?.filter(
+      (link) =>
+        !invalidSuffixes.some((suffix) => link.endsWith(suffix)) &&
+        link.length < 100 &&
+        !link.includes("+") &&
+        !link.includes("%20") &&
+        !link.includes("_") &&
+        link === link.toLowerCase()
+    ) || [];
+
+  const highQualityLinkPercentage =
+    (validInternalLinks.length / internalLinks) * 100;
+  if (highQualityLinkPercentage >= 70) score += 30;
+  else if (highQualityLinkPercentage <= 50) score += 15;
 
   return Math.min(Math.round(score), 100);
 }
 
 export function calculateContentDepthScore(data: PageDataType): number {
-  let score = 0;
-
   const weights = {
     totalWords: 30,
     h1: 20,
@@ -200,33 +177,17 @@ export function calculateContentDepthScore(data: PageDataType): number {
       weight: weights.totalWords,
       invalid: [false],
     },
-    {
-      value: data.headings.h1 >= 1,
-      weight: weights.h1,
-      invalid: [false],
-    },
-    {
-      value: data.headings.h2 >= 2,
-      weight: weights.h2,
-      invalid: [false],
-    },
-    {
-      value: data.headings.h3 >= 2,
-      weight: weights.h3,
-      invalid: [false],
-    },
-    {
-      value: data.totalImages > 0,
-      weight: weights.images,
-      invalid: [false],
-    },
+    { value: data.headings.h1 >= 1, weight: weights.h1, invalid: [false] },
+    { value: data.headings.h2 >= 2, weight: weights.h2, invalid: [false] },
+    { value: data.headings.h3 >= 2, weight: weights.h3, invalid: [false] },
+    { value: data.totalImages > 0, weight: weights.images, invalid: [false] },
   ];
 
-  conditions.forEach(({ value, weight, invalid }) => {
-    if (checkCondition(value, invalid)) {
-      score += weight;
-    }
-  });
+  const score = conditions.reduce(
+    (score, { value, weight, invalid }) =>
+      checkCondition(value, invalid) ? score + weight : score,
+    0
+  );
 
   return Math.min(Math.max(score, 0), 100);
 }
