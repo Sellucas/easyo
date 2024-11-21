@@ -1,18 +1,19 @@
 import { useState } from "react"
 import { Info, XCircle, ChevronDown, CheckCircle2, ChevronRight, ExternalLink } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { usePageData } from "@/provider/page-data-provider"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 
 interface ResultItemProps {
   label: string
   status: boolean
   tooltip?: string
   expandedContent?: React.ReactNode
-  expandedContentData?: string[]
+  expandedContentData?: {href: string}[]
 }
 
 const ResultItem = ({ label, status, tooltip, expandedContent, expandedContentData }: ResultItemProps) => {
@@ -78,12 +79,12 @@ const ResultItem = ({ label, status, tooltip, expandedContent, expandedContentDa
                   <li key={index} className="flex items-start space-x-2">
                     <ExternalLink className="size-3 mt-0.5 flex-shrink-0" />
                     <a
-                      href={link}
+                      href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs hover:underline break-all text-blue-500"
                     >
-                      {link}
+                      {link.href}
                     </a>
                   </li>
                 ))}
@@ -115,14 +116,14 @@ export const OverviewItem = () => {
 
   const hasDataOnOpenGraph = Object.values(pageData.openGraph).every(item => item !== "")
   const hasDataOnTwitter = Object.values(pageData.twitter).every(item => item !== "")
-  const filteredInternalLinks = pageData.links.internal.filter(link => link.length > 100)
+  const filteredInternalLinks = pageData.links.internal.filter(link => link.href.length > 100)
   const filteredInvalidExtension = pageData.links.internal.filter(link => 
-    invalidSuffixes.some(suffix => link.endsWith(suffix))
+    invalidSuffixes.some(suffix => link.href.endsWith(suffix))
   )
   const filteredInvalidSymbols = pageData.links.internal.filter(link => 
-    link.includes("+") || link.includes("%20") || link.includes("_")
+    link.href.includes("+") || link.href.includes("%20") || link.href.includes("_")
   )
-  const filteredInvalidLength = pageData.links.internal.filter(link => link !== link.toLowerCase())
+  const filteredInvalidLength = pageData.links.internal.filter(link => link.href !== link.href.toLowerCase())
 
   return (
     <div className="min-h-screen px-8 animate-slide-from-down-and-fade-2">
@@ -213,7 +214,7 @@ export const OverviewItem = () => {
                 tooltip="Internal links should be working properly and should not return a 404 status code."
                 status={pageData.invalidLinks.length === 0}
                 expandedContent
-                expandedContentData={pageData.invalidLinks}
+                expandedContentData={pageData.invalidLinks.map((link) => ({ href: link }))}
               />
               <ResultItem
                 label="Do non-existent URLs return a 404 status code?"

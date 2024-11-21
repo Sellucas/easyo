@@ -6,6 +6,8 @@ import {
   ExternalLink,
   GitBranch,
   ChevronDown,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -20,12 +22,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { PageDataType } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HeadingButton } from "@/components/heading-button";
 import { usePageData } from "@/provider/page-data-provider";
+import { Table, TableBody, TableCell, TableRow } from "./ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageDataType } from "@/types";
+import React from "react";
 
 export function StructureTab() {
   const [isInternalOpen, setIsInternalOpen] = useState(false);
@@ -39,24 +43,22 @@ export function StructureTab() {
     <div className="space-y-6">
       <UrlInfoCard pageData={pageData} />
       <KeywordsCard pageData={pageData} />
-      <div className="grid grid-cols-2 gap-6 animate-slide-from-down-and-fade-3">
-        <HeadingsCard
-          pageData={pageData}
-          isH1Open={isH1Open}
-          setIsH1Open={setIsH1Open}
-          isH2Open={isH2Open}
-          setIsH2Open={setIsH2Open}
-          isH3Open={isH3Open}
-          setIsH3Open={setIsH3Open}
-        />
-        <LinksCard
-          pageData={pageData}
-          isInternalOpen={isInternalOpen}
-          setIsInternalOpen={setIsInternalOpen}
-          isExternalOpen={isExternalOpen}
-          setIsExternalOpen={setIsExternalOpen}
-        />
-      </div>
+      <LinksCard
+        pageData={pageData}
+        isInternalOpen={isInternalOpen}
+        setIsInternalOpen={setIsInternalOpen}
+        isExternalOpen={isExternalOpen}
+        setIsExternalOpen={setIsExternalOpen}
+      />
+      <HeadingsCard
+        pageData={pageData}
+        isH1Open={isH1Open}
+        setIsH1Open={setIsH1Open}
+        isH2Open={isH2Open}
+        setIsH2Open={setIsH2Open}
+        isH3Open={isH3Open}
+        setIsH3Open={setIsH3Open}
+      />
       <ContentStatisticsCard pageData={pageData} />
     </div>
   );
@@ -85,7 +87,7 @@ function UrlInfoCard({ pageData }: { pageData: PageDataType }) {
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger>
-                  <Info className="size-3" />
+                  <Info className="size-3 text-gray-500" />
                 </TooltipTrigger>
                 <TooltipContent className="max-w-48 z-50">
                   <p>
@@ -156,7 +158,7 @@ function HeadingsCard({
   [key: string]: any;
 }) {
   return (
-    <Card>
+    <Card className="animate-slide-from-down-and-fade-3">
       <CardHeader className="flex flex-row gap-2 items-center">
         <CardTitle className="text-lg font-medium flex items-center gap-2">
           <FileText className="h-5 w-5" />
@@ -220,12 +222,10 @@ function HeadingCollapsible({
         <Badge variant="secondary">{count}</Badge>
       </div>
       <CollapsibleContent className="mt-2">
-        <ScrollArea className="h-[150px] w-full rounded border p-2">
-          <ul className="space-y-2">
+        <ScrollArea className="h-[300px] w-full rounded border p-2">
+          <ul className="space-y-2 list-disc list-inside">
             {content?.map((content, index) => (
-              <li key={index}>
-                <p>{content}</p>
-              </li>
+              <li key={index}>{content}</li>
             ))}
           </ul>
         </ScrollArea>
@@ -242,7 +242,7 @@ function LinksCard({
   [key: string]: any;
 }) {
   return (
-    <Card>
+    <Card className="animate-slide-from-down-and-fade-4">
       <CardHeader>
         <CardTitle className="text-lg font-medium flex items-center gap-2">
           <ExternalLink className="h-5 w-5" />
@@ -263,12 +263,6 @@ function LinksCard({
             setIsOpen={rest.setIsExternalOpen}
             links={pageData.links.external}
           />
-          <div className="flex justify-between items-center">
-            <span>Total Links</span>
-            <Badge variant="secondary">
-              {pageData.links.external.length + pageData.links.internal.length}
-            </Badge>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -284,7 +278,7 @@ function LinkCollapsible({
   title: string;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  links: string[];
+  links: { href: string; content?: string; hasNoFollow: boolean }[];
 }) {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
@@ -300,22 +294,44 @@ function LinkCollapsible({
         <Badge variant="secondary">{links.length}</Badge>
       </div>
       <CollapsibleContent className="mt-2">
-        <ScrollArea className="h-[150px] w-full rounded border p-2">
-          <ul className="space-y-2">
-            {links.map((link, index) => (
-              <li key={index}>
-                <a
-                  href={link}
-                  className="hover:underline text-blue-500"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {link}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </ScrollArea>
+        <Table className="w-full max-w-md mx-auto border rounded-lg overflow-hidden">
+          <ScrollArea className="h-[300px] border-b w-full px-1">
+            <TableBody className="w-full border mb-6">
+              {links.map((link, index) => (
+                <React.Fragment key={index}>
+                  <TableRow className="w-full">
+                    <TableCell className="font-medium">Anchor</TableCell>
+                    <TableCell className="flex items-center gap-2 text-sm w-full">
+                      <span>{link.content || "Missing"}</span>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow className="w-full">
+                    <TableCell className="font-medium">Follow</TableCell>
+                    <TableCell className="flex items-center gap-2 w-full">
+                      {link.hasNoFollow ? (
+                        <CheckCircle2 className="size-4 text-green-500" />
+                      ) : (
+                        <XCircle className="size-4 text-red-500" />
+                      )}
+                      <span>{link.hasNoFollow ? "DoFollow" : "NoFollow"}</span>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow className="w-full bg-muted/50">
+                    <TableCell className="font-medium">Link</TableCell>
+                    <TableCell>
+                      <a
+                        href={link.href}
+                        className=" text-blue-500 hover:underline w-full"
+                      >
+                        {link.href}
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </ScrollArea>
+        </Table>
       </CollapsibleContent>
     </Collapsible>
   );

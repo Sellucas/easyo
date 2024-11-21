@@ -17,8 +17,8 @@ export type HeadingsContentType = {
 };
 
 export type LinksType = {
-  internal: string[];
-  external: string[];
+  internal: {href: string, content?: string, hasNoFollow: boolean}[]
+  external: {href: string, content?: string, hasNoFollow: boolean}[]
 };
 
 export type OpenGraphType = {

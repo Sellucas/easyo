@@ -107,7 +107,7 @@ export const HeadingButton = () => {
           });
         });
       }}
-      className="size-4 text-accent-foreground hover:text-blue-500 cursor-pointer"
+      className="size-4 text-blue-500 hover:text-blue-600 cursor-pointer"
     />
   );
 };

@@ -23,8 +23,16 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const description = document.querySelector("meta[name='description']")?.getAttribute("content");
           const ogDescription = document.querySelector("meta[property='og:description']")?.getAttribute("content");
           const ttDescription = document.querySelector("meta[name='twitter:description']")?.getAttribute("content");
-          const internalLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href^='/']")).map((link) => link.href);
-          const externalLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href^='http']")).map((link) => link.href);
+          const internalLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href^='/']")).map((link) => ({
+            href: link.href,
+            content: link.textContent?.trim() || "",
+            hasNoFollow: link.rel.split(" ").includes("nofollow"),
+          }));
+          const externalLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href^='http']")).map((link) => ({
+            href: link.href,
+            content: link.textContent?.trim() || "",
+            hasNoFollow: link.rel.split(" ").includes("nofollow"),
+          }));
           const frames = Array.from(document.querySelectorAll("iframe")).map((el) => el.textContent?.trim());
           const h1Content = Array.from(document.querySelectorAll("h1")).map((el) => el.textContent?.trim());
           const h2Content = Array.from(document.querySelectorAll("h2")).map((el) => el.textContent?.trim());
@@ -62,14 +70,14 @@ chrome.runtime.onMessage.addListener(async (message) => {
           const checkInternalLinksStatus = await Promise.all(
             internalLinks.map(async (link) => {
               try {
-                const response = await fetch(link);
+                const response = await fetch(link.href);
                 if (response.status < 200 || response.status >= 300) {
-                  invalidLinks.push(link);
+                  invalidLinks.push(link.href);
                   return false;
                 }
                 return true;
               } catch (error) {
-                invalidLinks.push(link);
+                invalidLinks.push(link.href);
                 return false;
               }
             })

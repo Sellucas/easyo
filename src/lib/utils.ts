@@ -108,12 +108,13 @@ export function calculateOverallScore(data: PageDataType): number {
     {
       value: data.links.internal.every(
         (link) =>
-          !invalidSuffixes.some((suffix) => link.endsWith(suffix)) &&
-          link.length < 100 &&
-          !link.includes("+") &&
-          !link.includes("%20") &&
-          !link.includes("_") &&
-          link === link.toLowerCase()
+          !invalidSuffixes.some((suffix) =>
+          link.href.endsWith(suffix)) &&
+          link.href.length < 100 &&
+          !link.href.includes("+") &&
+          !link.href.includes("%20") &&
+          !link.href.includes("_") &&
+          link.href === link.href.toLowerCase()
       ),
       weight: weights.urlAnalysis,
       invalid: [false],
@@ -146,12 +147,12 @@ export function calculateLinkStructureScore(data: PageDataType): number {
   const validInternalLinks =
     data.links.internal?.filter(
       (link) =>
-        !invalidSuffixes.some((suffix) => link.endsWith(suffix)) &&
-        link.length < 100 &&
-        !link.includes("+") &&
-        !link.includes("%20") &&
-        !link.includes("_") &&
-        link === link.toLowerCase()
+        !invalidSuffixes.some((suffix) => link.href.endsWith(suffix)) &&
+        link.href.length < 100 &&
+        !link.href.includes("+") &&
+        !link.href.includes("%20") &&
+        !link.href.includes("_") &&
+        link.href === link.href.toLowerCase()
     ) || [];
 
   const highQualityLinkPercentage =
